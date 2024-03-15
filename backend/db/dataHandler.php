@@ -1,50 +1,66 @@
 <?php
-include("./models/person.php");
+include ("./models/appointment.php");
+include ("./config/dbaccess.php");
+
 class DataHandler
 {
 
-   public function queryPersons()
+    public function queryAppointments()
     {
-        $res =  $this->getDemoData();
+        $res = $this->getDemoData();
         return $res;
     }
 
-
-    public function queryPersonById($id)
+    /** 
+     * returns a single Appointment with specific ID
+     * **/
+    public function queryAppointmentById($id)
     {
-        $result = array();
-        foreach ($this->queryPersons() as $val) {
-            if ($val[0]->id == $id) {
-                array_push($result, $val);
-            }
-        }
-        return $result;
+        // $result = "";
+        // foreach ($this->queryAppointments() as $val) {
+        //     if ($val[0]->pId == $id) {
+        //         $result = $val;
+        //     }
+        // }
+        // return $result;
     }
 
-    public function queryPersonByName($name)
+    public function queryTerminByAppointmentId($id)
     {
-        $result = array();
-        foreach ($this->queryPersons() as $val) {
-            if ($val[0]->name == $name) {
-                array_push($result, $val);
-            }
-        }
-        return $result;
+
     }
 
-
-
-   private static function getDemoData()
+    private static function getDemoData()
     {
-
-        $demodata=[
-            [new Person(1, "Jane", "Doe", "jane.doe@fhtw.at", 1234567, "Central IT")],
-            [new Person(2, "John", "Doe", "john.doe@fhtw.at", 34345654, "Help Desk")],
-            [new Person(3, "baby", "Doe", "baby.doe@fhtw.at", 54545455, "Management")],
-            [new Person(4, "Mike", "Smith", "mike.smith@fhtw.at", 343477778, "Faculty")],
+        $demodata = [
+            [new Appointment(1, "Treffen mit Freunden", "Cafe", "01012024")],
+            [new Appointment(2, "Am Webprojekt arbeiten", "FHTW", "15032024")],
+            [new Appointment(3, "Blabla", "Irgendwo", "16032024")]
         ];
 
         return $demodata;
-        
+
+    }
+
+    private static function getAllAppointments()
+    {
+        global $db_host, $db_user, $db_password, $database;
+
+        $db_obj = new mysqli($db_host, $db_user, $db_password, $database);
+
+        if ($db_obj->connect_error) {
+            echo "<div class='inputError'>Connection Error: " . $db_obj->connect_error . "</div>";
+            exit();
+        }
+
+        $sql = "SELECT * FROM appointments";
+        $result = $db_obj->query($sql);
+
+        $appointmentArray = [];
+        while ($line = $result->fetch_assoc()) {
+            array_push($appointmentArray, new Appointment($line["AID"], $line["Title"], $line["Ort"]));
+        }
+
+        return $appointmentArray;
     }
 }
