@@ -11,13 +11,12 @@ if (isset ($_POST["method"]) && !empty ($_POST["method"])) {
 }
 
 if (isset ($_POST["param"]) && !empty ($_POST["param"])) {
-    $method = $_POST["param"];
-} else {
-    return;
+    $param = $_POST["param"];
 }
 
 $logic = new SimpleLogic();
 $result = $logic->handleRequest($method, $param);
+
 if ($result == null) {
     response("POST", 400, null);
 } else {

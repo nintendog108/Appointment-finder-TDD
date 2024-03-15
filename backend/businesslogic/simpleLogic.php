@@ -19,12 +19,12 @@ class SimpleLogic
                 $res = $this->dh->queryAppointments();
                 break;
 
-            case "queryAppointmentsById":
+            case "queryAppointmentById":
                 $res = $this->dh->queryAppointmentById($param);
                 break;
 
             case "queryTermineByAppointmentId":
-                $res = $this->dh->queryTerminByAppointmentId($param);
+                $res = $this->dh->queryTermineByAppointmentId($param);
                 break;
 
             default:
