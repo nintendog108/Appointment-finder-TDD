@@ -29,6 +29,9 @@ class DataHandler
         return $result;
     }
 
+    /**
+     * returns all Termine for a specific Appointment
+     */
     public function queryTermineByAppointmentId($id)
     {
         $res = $this->getAllTermineByAppointmentId($id);

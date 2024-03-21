@@ -1,13 +1,13 @@
 <?php
 class Appointment
 {
-  public $pId;
+  public $aId;
   public $title;
   public $ort;
 
   function __construct($id, $title, $ort)
   {
-    $this->pId = $id;
+    $this->aId = $id;
     $this->title = $title;
     $this->ort = $ort;
   }
