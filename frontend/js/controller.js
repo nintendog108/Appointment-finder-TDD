@@ -17,7 +17,7 @@ function loadAppointments() {
 }
 
 
-$("#appointments-wrapper").on("click", "button", function(){
+$("#appointmentsView").on("click", "button", function(){
     console.log($(this).data("aid"));
 });
 
@@ -43,9 +43,9 @@ function displayAppointments(appointments) {
 
         if (now > new Date(this.ablaufdatum)) {
             $(card).addClass("abgelaufen");
-            $("#appointments-wrapper").append(card);
+            $("#abgelaufen").append(card);
         } else {
-            $("#appointments-wrapper").prepend(card);
+            $("#appointments-wrapper").append(card);
         }
         
     });
