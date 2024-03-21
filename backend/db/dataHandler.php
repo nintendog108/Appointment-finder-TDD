@@ -55,7 +55,7 @@ class DataHandler
 
         $appointmentArray = [];
         while ($line = $result->fetch_assoc()) {
-            array_push($appointmentArray, new Appointment($line["AID"], $line["Title"], $line["Ort"]));
+            array_push($appointmentArray, new Appointment($line["AID"], $line["Title"], $line["Beschreibung"], $line["Ort"], $line["Ablaufdatum"]));
         }
 
         return $appointmentArray;
