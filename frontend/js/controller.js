@@ -7,7 +7,6 @@ function loadAppointments() {
         data: {method: "queryAppointments"},
         dataType: "json",
         success: function (response) {
-            console.log(response);
             displayAppointments(response.sort(sortByDate));
         },
         error: function (error) {
@@ -16,12 +15,11 @@ function loadAppointments() {
     });
 }
 
-
 $("#appointmentsView").on("click", "button", function(){
     console.log($(this).data("aid"));
 });
 
-function sortByDate(a, b){
+function sortByDate(a, b) {
     var aDate = a.ablaufdatum;
     var bDate = b.ablaufdatum; 
     return ((aDate < bDate) ? -1 : ((aDate > bDate) ? 1 : 0));
@@ -38,15 +36,14 @@ function displayAppointments(appointments) {
         row.append(ort, datum);
         let hr = $('<hr>');
         let desc = $('<p class="desc">' + this.desc + '</p>'); 
-        let button = $('<button data-aid="' + this.aId + '">Zur Abstimmung</button>');
+        let button = $('<button class="cardBtn" data-aid="' + this.aId + '">Zur Abstimmung</button>');
         card.append(title, row, hr, desc, button);
 
         if (now > new Date(this.ablaufdatum)) {
             $(card).addClass("abgelaufen");
-            $("#abgelaufen").append(card);
+            $("#abgelaufen").prepend(card);
         } else {
             $("#appointments-wrapper").append(card);
         }
-        
     });
 }
