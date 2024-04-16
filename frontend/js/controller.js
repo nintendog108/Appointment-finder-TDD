@@ -31,7 +31,7 @@ $("body").on("click", "#appointmentsView button", function(){
         dataType: "json",
         success: function (response) {
             console.log(response);
-
+            
             $("#title").text(response.title);
             $("#ort").text(response.ort);
             $("#ablaufdatum").text(new Date(response.ablaufdatum).toLocaleDateString());
@@ -52,24 +52,37 @@ $("body").on("click", "#appointmentsView button", function(){
         success: function (response) {
             console.log(response);
 
-            $.each(response, function (index, termin) { 
-                let terminDiv = $('<div class="termin"></div>');
+            // sort by date and time
+            let termine = response.sort(sortTerminByDateAndTime);
+
+            let table = $('<table></table>');
+            let tbody = $('<tbody></tbody>');
+            table.append(tbody);
+            let tr = $('<tr><td></td></tr>');
+            tbody.append(tr);
+
+            $.each(termine, function (index, termin) {
+                let terminDiv = $('<td class="termin"></td>');
                 let dateDiv = $('<div class="date"></div>');
                 let uhrzeitDiv = $('<div class="uhrzeit"></div>');
                 let uhrzeitSeperator = $('<p>-</p>');
-                let monatP = $('<p class="monat">' + + '</p>');
-                let dayP = $('<p class="day">' + termin.datum + '</p>');
-                let dayNameP = $('<p class="dayName">' +  + '</p>');
-                let uhrzeitVonP = $('<p class="uhrzeitVon">' + termin.uhrzeitVon + '</p>');
-                let uhrzeitBisP = $('<p class="uhrzeitBis">' + termin.uhrzeitBis + '</p>');
-                let voteDiv = $('<div class="vote"><input type="checkbox" name="' + termin.tId + '"></div>');
-
+                let monatP = $('<p class="monat">' + new Date (termin.datum).toString().substring(4, 7) + '</p>');
+                let dayP = $('<p class="day">' + new Date (termin.datum).toString().substring(8, 10) + '</p>');
+                let dayNameP = $('<p class="dayName">' + new Date (termin.datum).toString().substring(0, 3) + '</p>');
+                let uhrzeitVonP = $('<p class="uhrzeitVon">' + termin.uhrzeitVon.substring(0, 5) + '</p>');
+                let uhrzeitBisP = $('<p class="uhrzeitBis">' + termin.uhrzeitBis.substring(0, 5) + '</p>');
+                
                 dateDiv.append(monatP, dayP, dayNameP);
                 uhrzeitDiv.append(uhrzeitVonP, uhrzeitSeperator, uhrzeitBisP);
-                terminDiv.append(dateDiv, uhrzeitDiv, voteDiv);
+                terminDiv.append(dateDiv, uhrzeitDiv);
 
-                $('#voting').append(terminDiv);
+
+                tr.append(terminDiv);
             });
+
+            tr = $('<tr><td><input type="text"></td><td><input type="checkbox"></td></tr>');
+            tbody.append(tr);
+            $('#voting').append(table);
         }
     });
 
@@ -93,9 +106,61 @@ $("body").on("click", "#appointmentsView button", function(){
 });
 
 function sortByDate(a, b) {
-    var aDate = a.ablaufdatum;
-    var bDate = b.ablaufdatum; 
-    return ((aDate < bDate) ? -1 : ((aDate > bDate) ? 1 : 0));
+    var aDate = new Date(a.ablaufdatum);
+    var bDate = new Date(b.ablaufdatum);
+
+    if (aDate.getTime() < bDate.getTime()) {
+        // a läuft früher ab
+        return -1;
+    } else {
+        if (aDate.getTime() > bDate.getTime()) {
+            // b läuft früher ab
+            return 1;
+        } else {
+            // a und b laufen gleichzeitig ab
+            return 0;
+        }
+    }
+}
+
+function sortTerminByDateAndTime(a, b) {
+    var aDate = new Date(a.datum);
+    var bDate = new Date(b.datum);
+
+    if (aDate.getTime() != bDate.getTime()) {
+        if (aDate.getTime() < bDate.getTime()) {
+            // datum von a ist früher
+            return -1;
+        } else {
+            // datum von b ist früher
+            return 1;
+        }
+    } else {
+        var aVon = new Date(a.datum + ' ' + a.uhrzeitVon);
+        var bVon = new Date(b.datum + ' ' + b.uhrzeitVon);
+        if (aVon.getTime() < bVon.getTime()) {
+            // a beginnt früher
+            return -1;
+        } else {
+            if (aVon.getTime() == bVon.getTime()) {
+                var aBis = new Date(a.datum + ' ' + a.uhrzeitBis);
+                var bBis = new Date(b.datum + ' ' + b.uhrzeitBis);
+                
+                // a und b beginnen gleichzeitig
+                // check auf endZeit
+                if (aBis.getTime() < bBis.getTime()) {
+                    // a endet früher
+                    return -1;
+                } else {
+                    // b endet früher oder ist gleich
+                    return 1;
+                }
+            } else {
+                // b beginnt früher
+                return 1;
+            }
+        }
+    }
 }
 
 function displayAppointments(appointments) {

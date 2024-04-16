@@ -77,12 +77,6 @@ html, body {
     flex-direction: row;
 }
 
-#voting .termin {
-    display: flex;
-    flex-direction: column;
-    border: solid 1px black;
-}
-
 #voting .termin .vote {
     border-top: solid 1px black;
 }
