@@ -22,7 +22,7 @@ class DataHandler
     {
         $result = "";
         foreach ($this->queryAppointments() as $val) {
-            if ($val->pId == $id) {
+            if ($val->aId == $id) {
                 $result = $val;
             }
         }
