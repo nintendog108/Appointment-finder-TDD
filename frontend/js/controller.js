@@ -22,7 +22,9 @@ function loadAppointments() {
 $("body").on("click", "#appointmentsView button", function(){
     console.log($(this).data("aid"));
 
-    $("body").load("detailedView.html");
+    $("body").load("detailedView.html", function() {
+        $('#detailedView').data("aid", 4);
+    });
 
     $.ajax({
         type: "POST",
@@ -80,7 +82,18 @@ $("body").on("click", "#appointmentsView button", function(){
                 tr.append(terminDiv);
             });
 
-            tr = $('<tr><td><input type="text"></td><td><input type="checkbox"></td></tr>');
+            // get prev votings and show them
+
+            tr = $('<tr id="selection"></tr>');
+            let input = $('<td><input type="text" id="username"></td>');
+            tr.append(input);
+
+            $.each(termine, function (index, termin) {
+                let checkbox = $('<td><input type="checkbox" value="' + termin.tId + '"></td>');
+
+                tr.append(checkbox);
+            });
+            
             tbody.append(tr);
             $('#voting').append(table);
         }
@@ -103,6 +116,47 @@ $("body").on("click", "#appointmentsView button", function(){
     //         <input type="checkbox" name="tId" id="tId">
     //     </div>
     // </div>
+});
+
+$("body").on("click", "#detailedView #speichern", function () {
+    let checkboxen = $('#selection input[type="checkbox"]');
+    let username = $('#selection #username');
+    let comment = $('#comment');
+
+    if (username.val().length == 0) {
+        $('#errorMessage').text("Bitte geben Sie Ihren Namen ein!");
+        $('#error').toggleClass("show");
+
+        setTimeout(() => {
+            $('#error').toggleClass("show");
+        }, 4000);
+
+        return;
+    }
+
+    let selection = [];
+    $.each(checkboxen, function (index, checkbox) { 
+        if ($(checkbox).is(":checked")) {
+            selection.push($(checkbox).val());
+        }
+    });
+
+    let toSave = {
+        "aid": $('#detailedView').data("aid"),
+        "name": username.val(),
+        "voting": selection,
+        "comment": comment.val(),
+    };
+
+    $.ajax({
+        type: "POST",
+        url: ".././serviceHandler.php",
+        data: {method:"saveVoting", param:JSON.stringify(toSave)},
+        dataType: "dataType",
+        success: function (response) {
+            // data successfully saved
+        }
+    });
 });
 
 function sortByDate(a, b) {

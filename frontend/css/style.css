@@ -80,3 +80,17 @@ html, body {
 #voting .termin .vote {
     border-top: solid 1px black;
 }
+
+#detailedView {
+    height: 100%;
+}
+
+#detailedView #error {
+    position: absolute;
+    bottom: -100px;
+    transition: all 0.4s ease;
+}
+
+#detailedView #error.show {
+    bottom: 10%;
+}

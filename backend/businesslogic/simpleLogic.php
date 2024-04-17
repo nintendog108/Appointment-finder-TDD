@@ -27,6 +27,10 @@ class SimpleLogic
                 $res = $this->dh->queryTermineByAppointmentId($param);
                 break;
 
+            case "saveVoting":
+                $res = $this->dh->saveVoting($param);
+                break;
+
             default:
                 $res = null;
                 break;
