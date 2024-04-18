@@ -38,7 +38,7 @@ class DataHandler
         return $res;
     }
 
-    public function saveVoting($param)
+   /* public function saveVoting($param)   
     {
         $this->saveAllVotings($param["name"], $param["voting"]);
 
@@ -46,7 +46,21 @@ class DataHandler
             saveCommentToDB(...);
         }
         return true;
+    } */
+    
+public function saveVoting($param)      //geändert
+{
+    $this->saveAllVotings($param["name"], $param["voting"]);
+
+    if (strlen($param["comment"]) > 0) { // strlen() instead of .length for php thing
+        $aid = $param["aid"];   //extracting the aid from the param array to use it
+        $name = $param["name"];
+        $comment = $param["comment"];
+        $this->saveCommentToDB($aid, $name, $comment);
     }
+    return true;
+}
+
 
 
     // PRIVATE FUNCTIONS
@@ -134,4 +148,30 @@ class DataHandler
 
         return $appointmentArray;
     }
+
+
+
+    private static function getAllVotingsByAId($id)   // new
+{
+    global $db_host, $db_user, $db_password, $database;
+
+    $db_obj = new mysqli($db_host, $db_user, $db_password, $database);
+
+    if ($db_obj->connect_error) {
+        return;
+    }
+
+    $sql = "SELECT * FROM `votings` WHERE `AID` = ?";
+    $stmt = $db_obj->prepare($sql);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $votingArray = [];
+    while ($line = $result->fetch_assoc()) {
+        array_push($votingArray, new Voting($line["VID"], $line["AID"], $line["Voting"], $line["Comment"]));
+    }
+
+    return $votingArray;
+}
 }

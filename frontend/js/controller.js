@@ -13,9 +13,9 @@ function loadAppointments() {
         success: function (response) {
             displayAppointments(response.sort(sortByDate));
         },
-        error: function (error) {
-            console.error(error);
-        }
+    error: function (error) {
+         console.error(error);
+       }
     });
 }
 
@@ -148,13 +148,20 @@ $("body").on("click", "#detailedView #speichern", function () {
         "comment": comment.val(),
     };
 
-    $.ajax({
+    $.ajax({               // success message
         type: "POST",
-        url: ".././serviceHandler.php",
+        url: ".././backend/serviceHandler.php",
         data: {method:"saveVoting", param:JSON.stringify(toSave)},
         dataType: "dataType",
         success: function (response) {
-            // data successfully saved
+            console.log(response);
+        
+            $('#successMessage').text("Ihre Auswahl wurde gespeichert!");
+            $('#success').toggleClass("show");
+
+            setTimeout(() => {   // es wird aber immer angezeigt why
+                $('#success').toggleClass("show");
+            }, 4000);
         }
     });
 });
