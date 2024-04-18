@@ -80,9 +80,6 @@ function loadAppointment(aid) {
                 tr.append(terminDiv);
             });
 
-            // get prev votings and display them
-
-
             // create voting options
             tr = $('<tr id="selection"></tr>');
             let input = $('<td><input type="text" id="username"></td>');
@@ -96,6 +93,20 @@ function loadAppointment(aid) {
             
             tbody.append(tr);
             $('#voting').append(table);
+
+            // get prev votings and display them
+            $.ajax({
+                type: "POST",
+                url: ".././backend/serviceHandler.php",
+                data: {method:"queryAllVotingsByAppointmentId", param: aid},
+                dataType: "json",
+                success: function (response) {
+                    console.log(response);
+                    // nothing in database
+                    if (response == 1) return;
+                    modifyAndPrintVotings(aid, response);    
+                }
+            });
         }
     });
 
@@ -117,6 +128,98 @@ function loadAppointment(aid) {
                 $('#commentArea').append(kommentarDiv);
             });
         }
+    });
+}
+
+function modifyAndPrintVotings(aid, response) {
+    let newresponse = [];
+
+    $.ajax({
+        type: "POST",
+        url: ".././backend/serviceHandler.php",
+        data: {method: "queryTermineByAppointmentId", param: aid},
+        dataType: "json",
+        success: function (termine) {
+            let person = null;
+            // markiert letztes Voting der person
+            let letzterTermin = 0;
+            // durchlauf alle votings, ein voting = {tId: 1, name: "Florian"}
+            $.each(response, function (index, voting) {
+                if (person == null) {
+                    // initialisiere person am anfang, mit dem namen
+                    person = {"name": voting.name, "votings": []};
+                } else if (person.name != voting.name) {
+                    // wenn das voting einer neuen person gehört
+                    // setze alle nachfolgenden Termine ab dem letzten Voting der Person auf false
+                    // beginne beim letzten Voting und lauf bis zum letzten
+                    for (let i = letzterTermin; i < termine.length; i++) {
+                        person.votings.push(0);
+                    }
+                    // letztes Voting für neue Person zurücksetzen
+                    letzterTermin = 0;
+                    // Person ins Array hinzufügen
+                    newresponse.push(person);
+                    // json für neue person neu mit namen initialisieren
+                    person = {"name": voting.name, "votings": []};
+                }
+                // immer, fang vom letzten voting an (oder bei neuer person 0) und schau an welchem termin das aktuelle voting ist
+                for (let j = letzterTermin; j < termine.length; j++) {
+                    if (termine[j].tId == voting.tId) {
+                        // wenn das voting gleich dem aktuellen termin ist setz auf true
+                        person.votings.push(1);
+                        // setz den letzten termin auf das aktuelle voting plus 1 und hör auf um zum nächsten voting zu kommen
+                        letzterTermin = j + 1;
+                        break;
+                    } else {
+                        // da die termine und votings nach datum sortiert sind können wir mit sicherheit sagen
+                        // das die person nicht für diesen termin gevoted hat, daher false
+                        person.votings.push(0);
+                    }
+                }
+            });
+            // für die letzte person alle nachfolgenden termine nach dem letzten voting auf false setzen
+            for (let i = letzterTermin; i < termine.length; i++) {
+                person.votings.push(0);
+            }
+            // letzte person ins array hinzufügen
+            newresponse.push(person);
+            printVotings(newresponse);
+        }
+    });
+    /**
+     * ALTE STRUKTUR
+     * 
+     * { vId: 7, tId: 5, name: "Fanni" }
+     * { vId: 8, tId: 3, name: "Fanni" }
+     * { vId: 9, tId: 3, name: "Florian" }
+     *
+     * NEUE STRUKTUR
+     * [{
+     *  "name": "Fanni",
+     *  "votings": [1, 1]
+     * },
+     * {
+     *  "name": "Florian",
+     *  "votings": [0, 1]
+     * }]
+     */
+}
+
+function printVotings(votings) {
+    console.log(votings);
+
+    $.each(votings, function (index, person) { 
+        let tr = $('<tr></tr>');
+        let name = $('<td><p>' + person.name + '</p></td>');
+        tr.append(name);
+        console.log(person.votings);
+        $.each(person.votings, function (i, termin) {
+            console.log(termin);
+            let checkbox = $('<td><input type="checkbox"' + (termin ? 'checked' : '') + '></td>');
+            tr.append(checkbox);
+        });
+
+        $(tr).insertBefore('#selection');
     });
 }
 
@@ -148,23 +251,21 @@ $("body").on("click", "#detailedView #speichern", function () {
         data: {method:"queryAllVotingsByAppointmentId", param:$('#detailedView').data('aid')},
         dataType: "json",
         success: function (response) {
+            console.log(response);
             let usernameExists = false;
-            $.each(response, function (index, voting) { 
-                if (voting.name === username.val()) {
-                    usernameExists = true;
-                }
-            });
-            
+
+            if (response != 1) {
+                $.each(response, function (index, voting) { 
+                    if (voting.name === username.val()) {
+                        usernameExists = true;
+                    }
+                });
+            }
+
             if (usernameExists) {
                 showError("Es existiert bereits ein Voting mit dem Namen!");
             } else {
-                saveVoting(selection, comment.val(), username.val());
-
-                let aid = $('#detailedView').data("aid");
-
-                $("body").load("detailedView.html", function() {
-                    loadAppointment(aid);
-                });
+                saveVoting(selection, comment.val(), username.val());    
             }
         }
     });
@@ -185,7 +286,14 @@ function saveVoting(selection, comment, username) {
         dataType: "json",
         success: function (response) {
             // success Message
-            showSuccess("Ihre Auswahl wurde gespeichert!");
+            let aid = $('#detailedView').data("aid");
+
+            $("body").load("detailedView.html", function() {
+                loadAppointment(aid);
+                setTimeout(() => {
+                    showSuccess("Ihre Auswahl wurde gespeichert!");    
+                }, 100);
+            });
         }
     });
 }

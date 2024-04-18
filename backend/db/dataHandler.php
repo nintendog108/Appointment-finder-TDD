@@ -46,10 +46,10 @@ class DataHandler
         return $res;
     }
 
-    public function queryCommentsByAppointment($id) 
+    public function queryCommentsByAppointment($id)
     {
         $res = $this->getAllCommentsByAppointment($id);
-        return $res; 
+        return $res;
     }
     public function saveVoting($param)
     {
@@ -154,7 +154,9 @@ class DataHandler
             return;
         }
 
-        $sql = "SELECT * FROM `termine` JOIN `voting` ON termine.TID = voting.TID WHERE `AID` = ? ORDER BY `Name`, `Datum`, `UhrzeitVon`, `UhrzeitBis`";
+        $sql = "SELECT * FROM `termine` JOIN `voting` ON termine.TID = voting.TID WHERE `AID` = ? ORDER BY `VotingTime`, `Name`, `Datum`, `UhrzeitVon`, `UhrzeitBis`";
+
+
         $stmt = $db_obj->prepare($sql);
         $stmt->bind_param("i", $aid);
         $stmt->execute();
@@ -165,7 +167,7 @@ class DataHandler
             array_push($votingArray, new Voting($line["VID"], $line["TID"], $line["Name"]));
         }
 
-        return $votingArray;
+        return count($votingArray) > 0 ? $votingArray : 1;
     }
 
     private static function getAllCommentsByAppointment($aid)
@@ -189,6 +191,6 @@ class DataHandler
             array_push($commentArray, new Kommentar($line["KID"], $line["AID"], $line["Name"], $line["Datum"], $line["Kommentar"]));
         }
 
-        return $commentArray;
+        return count($commentArray) ? $commentArray : 1;
     }
 }

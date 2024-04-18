@@ -34,11 +34,11 @@ class SimpleLogic
             case "queryAllVotingsByAppointmentId":
                 $res = $this->dh->queryAllVotingsByAppointmentID($param);
                 break;
-            
+
             case "queryCommentsByAppointment":
                 $res = $this->dh->queryCommentsByAppointment($param);
                 break;
-                
+
             default:
                 $res = null;
                 break;
