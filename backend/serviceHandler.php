@@ -3,28 +3,14 @@ include ("businesslogic/simpleLogic.php");
 
 $param = "";
 $method = "";
-/*
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $method = $_POST['method'];
-    $param = json_decode($_POST['param'], true);
 
-    if ($method === 'saveVoting') {
-
-        include '".././db/dataHandler.php';
-        $dataHandler = new DataHandler();
-        $dataHandler->saveVoting($param);
-
-        response("POST", 200, array("status" => "success"));
-    }
-} */
-
-if (isset ($_POST["method"]) && !empty ($_POST["method"])) {
+if (isset($_POST["method"]) && !empty($_POST["method"])) {
     $method = $_POST["method"];
 } else {
     return;
 }
 
-if (isset ($_POST["param"]) && !empty ($_POST["param"])) {
+if (isset($_POST["param"]) && !empty($_POST["param"])) {
     $param = $_POST["param"];
 }
 

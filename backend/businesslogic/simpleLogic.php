@@ -28,9 +28,17 @@ class SimpleLogic
                 break;
 
             case "saveVoting":
-                $res = $this->dh->saveVoting($param);
+                $res = $this->dh->saveVoting(json_decode($param));
                 break;
 
+            case "queryAllVotingsByAppointmentId":
+                $res = $this->dh->queryAllVotingsByAppointmentID($param);
+                break;
+            
+            case "queryCommentsByAppointment":
+                $res = $this->dh->queryCommentsByAppointment($param);
+                break;
+                
             default:
                 $res = null;
                 break;
