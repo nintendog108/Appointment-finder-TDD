@@ -51,17 +51,6 @@ html, body {
     width: 100%;
 }
 
-#speichern {
-    background-color: rgb(1, 132, 255);
-    color: white;
-    font-weight: bold;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 10px;
-    float: right;
-    margin-top: 7px;
-}
-
 .kommentar {
     border: solid 1px grey;
     border-radius: 10px;
@@ -86,13 +75,6 @@ html, body {
     align-items: center;
 }
 
-#appointments-wrapper, #abgelaufen {
-    width: 60%;
-    display: grid;
-    grid-template-columns: 50% 50%;
-    column-gap: 20px;
-}
-
 #appointmentsView h1 {
     margin: 20px;
 }
@@ -101,48 +83,9 @@ html, body {
     margin: 60px 0px;
 }
 
-.appointmentCard {
-    width: 100%;
-    border: solid 1px darkgrey;
-    border-radius: 15px;
-    padding: 20px;
-    margin: 10px 0px;
-}
-
-.appointmentCard.abgelaufen {
-    background-color: rgb(179, 179, 179);
-}
-
-.appointmentCard h3 {
-    margin-bottom: 10px;
-}
-
-.appointmentCard .row {
-    display: flex;
-    padding: 5px 0px;
-}
-
 .row.spacebetween {
     justify-content: space-between;
 }
-
-.appointmentCard .desc {
-    font-size: 0.9rem;
-    margin: 10px 0px;
-}
-
-.appointmentCard button {
-    margin-top: 10px;
-    padding: 10px;
-    border: none;
-    border-radius: 10px;
-    float: right;
-}
-
-.appointmentCard.abgelaufen button {
-    background-color: grey;
-}
-
 
 #detailedView #voting {
     display: flex;
@@ -153,12 +96,12 @@ html, body {
     border-top: solid 1px black;
 }
 
-#detailedView {
-    height: 100%;
+#detailedView p {
+    margin-bottom: 0px;
 }
 
-#detailedView #error,
-#detailedView #success {
+#error,
+#success {
     position: fixed;
     bottom: -100px;
     transition: all 0.4s ease;
@@ -175,23 +118,27 @@ html, body {
     font-weight: bold;
 }
 
-#detailedView #error {
-    background-color: rgba(255, 0, 0, 0.5);
+#error p, #success p {
+    margin-bottom: 0px;
+    margin-left: 10px;
+}
+
+#error {
+    background-color: rgb(255, 137, 137);
     color: rgb(100, 1, 1);
     border-color: rgb(100, 1, 1);
 }
 
-#detailedView #success {
-    background-color: rgba(0, 255, 0, 0.5);
+#success {
+    background-color: rgb(120, 255, 120);
     color: rgb(0, 100, 10);
     border-color: rgb(0, 100, 10);
 }
 
-#detailedView #error.show,
-#detailedView #success.show {
+#error.show,
+#success.show {
     bottom: 10%;
 }
-
 
 .appointmentForm {
     display: flex;
@@ -202,14 +149,13 @@ html, body {
     border-radius: 50px;
     width: 50px;
     height: 50px;
-    background-color: rgb(43, 43, 179);
+    background-color: rgb(1, 132, 255);
     color: white;
     font-weight: bold;
-    font-size: 15px;
     border: none;
     transition: all 0.2s ease;
     cursor: pointer;
-    position: absolute;
+    position: fixed;
     right: 50px;
     bottom: 50px;
 }
@@ -222,6 +168,54 @@ html, body {
     transform: scale(1.05);
 }
 
+#delete {
+    border-radius: 50px;
+    width: 50px;
+    height: 50px;
+    background-color: rgb(255, 0, 0);
+    color: white;
+    font-weight: bold;
+    font-size: 15px;
+    border: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: fixed;
+    right: 20px;
+    top: 20px;
+}
+
+#delete:hover {
+    background-color: rgb(211, 4, 4);
+}
+
+#terminArea .termin {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#terminArea .termin p {
+    margin-bottom: 0px;
+}
+
+#terminArea .termin .delete {
+    background-color: transparent;
+    border: 1px solid rgb(126, 1, 1);
+    transition: all 0.2s ease;
+    margin-left: 10px;
+    border-radius: 10px;
+}
+
+#terminArea .termin .delete i {
+    color: rgb(126, 1, 1);
+    font-size: 1rem;
+    -webkit-text-stroke: 1px;
+}
+
+#terminArea .termin .delete:hover {
+    background-color: rgba(255, 0, 0, 0.541);
+}
+
 #back {
     position: absolute;
     left: 20px;
@@ -229,6 +223,12 @@ html, body {
     border: none;
     background-color: none;
     font-size: 2rem;
+    border-radius: 50px;
+    width: 50px;
+    height: 50px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
 td p {

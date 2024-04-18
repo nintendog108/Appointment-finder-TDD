@@ -7,6 +7,11 @@ include ("./config/dbaccess.php");
 
 class DataHandler
 {
+    public function saveAppointment($param)
+    {
+        $res = $this->createAppointment($param->title, $param->desc, $param->ort, $param->ablaufdatum);
+        return $res;
+    }
 
     /**
      * returns all Appointments
@@ -62,6 +67,26 @@ class DataHandler
     }
 
     // PRIVATE FUNCTIONS
+    private static function createAppointment($title, $beschreibung, $ort, $ablaufdatum) // new appointment anlegen
+    {
+        global $db_host, $db_user, $db_password, $database;
+
+        $db_obj = new mysqli($db_host, $db_user, $db_password, $database);
+
+        if ($db_obj->connect_error) {
+            return;
+        }
+
+        $sql = "INSERT INTO `appointments` (`Title`, `Beschreibung`, `Ort`, `Ablaufdatum`) VALUES (?, ?, ?, ?)";
+        $stmt = $db_obj->prepare($sql);
+        $stmt->bind_param("ssss", $title, $beschreibung, $ort, $ablaufdatum);
+        $stmt->execute();
+        // last inserted id
+        $sql = 'SELECT LAST_INSERT_ID() id';
+        $aid = $db_obj->query($sql)->fetch_array()["id"];
+        return $aid;
+    }
+
     private static function saveCommentToDB($aid, $name, $comment)
     {
         global $db_host, $db_user, $db_password, $database;
@@ -136,12 +161,12 @@ class DataHandler
         $stmt->execute();
         $result = $stmt->get_result();
 
-        $appointmentArray = [];
+        $terminArray = [];
         while ($line = $result->fetch_assoc()) {
-            array_push($appointmentArray, new Termin($line["TID"], $line["AID"], $line["Datum"], $line["UhrzeitVon"], $line["UhrzeitBis"]));
+            array_push($terminArray, new Termin($line["TID"], $line["AID"], $line["Datum"], $line["UhrzeitVon"], $line["UhrzeitBis"]));
         }
 
-        return $appointmentArray;
+        return count($terminArray) > 0 ? $terminArray : 1;
     }
 
     private static function getAllVotingsByAppointment($aid)
@@ -194,3 +219,22 @@ class DataHandler
         return count($commentArray) ? $commentArray : 1;
     }
 }
+
+
+
+// public static function createTermin($tid, $aid, $datum, $uhrzeitvon, $uhrzeitbis) // new termin anlegen
+// {
+//     global $db_host, $db_user, $db_password, $database;
+
+//     $db_obj = new mysqli($db_host, $db_user, $db_password, $database);
+
+//     if ($db_obj->connect_error) {
+//         return;
+//     }
+
+//     $sql = "INSERT INTO `termine` (`TID`, `AID`, `Datum`, `UhrzeitVon`, `UhrzeitBis`) VALUES (?, ?, ?, ?, ?)";
+//     $stmt = $db_obj->prepare($sql);
+//     $stmt->bind_param("sssss", $tid, $aid, $datum, $uhrzeitvon, $uhrzeitbis);
+//     $stmt->execute();
+
+// }

@@ -1,0 +1,47 @@
+<section class="container" id="newAppointment">
+    <button id="back"><i class="bi bi-arrow-left-short"></i></button>
+    <h2>Neues Appointment erstellen</h2>
+    <form class="appointmentForm">
+        
+         <div class="mb-3 row">
+            <label for="title" class="col-sm-2 col-form-label">Titel:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="title" placeholder="Titel">
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label for="desc" class="col-sm-2 col-form-label">Beschreibung:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="desc" placeholder="Beschreibung des Appointments"></textarea>
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label for="ort" class="col-sm-2 col-form-label">Ort:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="ort" placeholder="Ort">
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label for="ablaufdatum" class="col-sm-2 col-form-label">Ablaufdatum:</label>
+            <div class="col-sm-10">
+                <input type="date" class="form-control" id="ablaufdatum">
+            </div>
+        </div>
+
+        <div id="terminArea">
+            <h3>Termine</h3>
+            <div class="termin row">
+                <label class="col-auto">Datum:</label>
+                <input class="col-auto" type="date" name="datum">
+                <label class="col-auto">Uhrzeit:</label>
+                <input class="col-auto" type="time" name="von">
+                <p class="col-auto">-</p>
+                <input class="col-auto" type="time" name="bis">
+                <button class="delete col-auto"><i class="bi bi-x"></i></button>
+            </div>
+        </div>
+        <button id="addTermin"><i class="bi bi-plus"></i></button>
+
+        <button class="btn btn-primary" id="speichern">Speichern</button>
+    </form>
+</section>

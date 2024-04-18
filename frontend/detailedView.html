@@ -1,28 +1,32 @@
-<section id="detailedView" data-aid="">
-    <h1 id="title"></h1>
-    <div class="row">
-        <p id="ort"></p>
-        <p id="ablaufdatum"></p>
+<section class="container" id="detailedView" data-aid="">
+    <button id="back"><i class="bi bi-arrow-left-short"></i></button>
+    <button id="delete"><i class="bi bi-trash3-fill"></i></button>
+
+    <h2 id="title"></h2>
+    <div class="row d-flex justify-content-between">
+        <p class="col-auto" id="ort"></p>
+        <p class="col-auto" id="ablaufdatum"></p>
     </div>
     <hr>
-    <p id="desc"></p>
+    <div class="row mb-3">
+        <p class="col-auto" id="desc"></p>
+    </div>
+
     <div id="voting">
     </div>
-    <div id="commentArea">
-    </div>
-    <label for="comment">Kommentar:</label>
-    <textarea id="comment"></textarea>
-    <button id="speichern">Speichern</button>
+    <h3>Kommentare</h3>
 
-
+    <textarea class="form-control mb-3" id="comment" placeholder="Kommentar hinzuf&uuml;gen"></textarea>
+    <button class="btn btn-primary" id="speichern">Speichern</button>
+    <div id="commentArea"></div>
 
     <div id="error">
-        <span class="material-symbols-outlined">sentiment_extremely_dissatisfied</span>
+        <i class="bi bi-emoji-angry-fill"></i>
         <p id="errorMessage"></p>
     </div>
 
     <div id="success">
-        <span class="material-symbols-outlined">sentiment_very_satisfied</span>
+        <i class="bi bi-emoji-smile-fill"></i>
         <p id="successMessage"></p>
     </div>
 </section>

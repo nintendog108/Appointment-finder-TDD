@@ -19,7 +19,7 @@ function loadAppointments() {
     });
 }
 
-$("body").on("click", "#appointmentsView button", function(){
+$("body").on("click", "#appointmentsView .btn", function(){
     let aid = $(this).data("aid");
 
     $("body").load("detailedView.html", function() {
@@ -56,7 +56,10 @@ function loadAppointment(aid) {
         data: {method: "queryTermineByAppointmentId", param: aid},
         dataType: "json",
         success: function (response) {
-            let table = $('<table></table>');
+            // nothing in database
+            if (response == 1) return;
+
+            let table = $('<table class="table table-bordered"></table>');
             let tbody = $('<tbody></tbody>');
             table.append(tbody);
             let tr = $('<tr><td></td></tr>');
@@ -66,7 +69,7 @@ function loadAppointment(aid) {
                 let terminDiv = $('<td class="termin"></td>');
                 let dateDiv = $('<div class="date"></div>');
                 let uhrzeitDiv = $('<div class="uhrzeit"></div>');
-                let uhrzeitSeperator = $('<p>-</p>');
+                let uhrzeitSeperator = $('<p class="seperator">-</p>');
 
                 let monatP = $('<p class="monat">' + new Date (termin.datum).toString().substring(4, 7) + '</p>');
                 let dayP = $('<p class="day">' + new Date (termin.datum).toString().substring(8, 10) + '</p>');
@@ -101,7 +104,6 @@ function loadAppointment(aid) {
                 data: {method:"queryAllVotingsByAppointmentId", param: aid},
                 dataType: "json",
                 success: function (response) {
-                    console.log(response);
                     // nothing in database
                     if (response == 1) return;
                     modifyAndPrintVotings(aid, response);    
@@ -117,14 +119,17 @@ function loadAppointment(aid) {
         data: {method: "queryCommentsByAppointment", param: aid},
         dataType: "json",
         success: function (response) {
-            console.log(response);
+            // nothing in database
+            if (response == 1) return;
 
             $.each(response, function (index, kommentar) { 
-                let kommentarDiv = $('<div class="kommentar"> </div>');
-                let nameSpan = $('<span>' + kommentar.name + '</span>');
+                let kommentarDiv = $('<div class="card mb-3"></div>');
+                let cardHeader = $('<div class="card-header">' + kommentar.name + '</div>');
+                let cardBody = $('<div class="card-body"></div>');
                 let commentP = $('<p>' + kommentar.kommentar + '</p>');
 
-                kommentarDiv.append(nameSpan, commentP);
+                cardBody.append(commentP);
+                kommentarDiv.append(cardHeader, cardBody);
                 $('#commentArea').append(kommentarDiv);
             });
         }
@@ -215,13 +220,29 @@ function printVotings(votings) {
         console.log(person.votings);
         $.each(person.votings, function (i, termin) {
             console.log(termin);
-            let checkbox = $('<td><input type="checkbox"' + (termin ? 'checked' : '') + '></td>');
+            let checkbox = $('<td class="' + (termin ? 'voted' : 'notVoted') + '">' + (termin ? '<i class="bi bi-check"></i>' : '<i class="bi bi-x"></i>') + '</td>');
             tr.append(checkbox);
         });
 
         $(tr).insertBefore('#selection');
     });
 }
+
+$('body').on('click', '#back', function() {
+    $("body").load("appointments.html", function () {
+        loadAppointments();
+    });
+});
+
+$('body').on('click', '#appointmentsView #add', function() {
+    $('body').load('newAppointment.html');
+});
+
+$('body').on('click', '#newAppointment #speichern', function(event) {
+    event.preventDefault();
+    saveNewAppointment();
+});
+
 
 $("body").on("click", "#detailedView #speichern", function () {
     let username = $('#selection #username');
@@ -289,6 +310,7 @@ function saveVoting(selection, comment, username) {
             let aid = $('#detailedView').data("aid");
 
             $("body").load("detailedView.html", function() {
+                $('#detailedView').data("aid", aid);
                 loadAppointment(aid);
                 setTimeout(() => {
                     showSuccess("Ihre Auswahl wurde gespeichert!");    
@@ -316,83 +338,117 @@ function showSuccess(message) {
     }, 4000);
 }
 
-// function sortByDate(a, b) {
-//     var aDate = new Date(a.ablaufdatum);
-//     var bDate = new Date(b.ablaufdatum);
-
-//     if (aDate.getTime() < bDate.getTime()) {
-//         // a läuft früher ab
-//         return -1;
-//     } else {
-//         if (aDate.getTime() > bDate.getTime()) {
-//             // b läuft früher ab
-//             return 1;
-//         } else {
-//             // a und b laufen gleichzeitig ab
-//             return 0;
-//         }
-//     }
-// }
-
-// function sortTerminByDateAndTime(a, b) {
-//     var aDate = new Date(a.datum);
-//     var bDate = new Date(b.datum);
-
-//     if (aDate.getTime() != bDate.getTime()) {
-//         if (aDate.getTime() < bDate.getTime()) {
-//             // datum von a ist früher
-//             return -1;
-//         } else {
-//             // datum von b ist früher
-//             return 1;
-//         }
-//     } else {
-//         var aVon = new Date(a.datum + ' ' + a.uhrzeitVon);
-//         var bVon = new Date(b.datum + ' ' + b.uhrzeitVon);
-//         if (aVon.getTime() < bVon.getTime()) {
-//             // a beginnt früher
-//             return -1;
-//         } else {
-//             if (aVon.getTime() == bVon.getTime()) {
-//                 var aBis = new Date(a.datum + ' ' + a.uhrzeitBis);
-//                 var bBis = new Date(b.datum + ' ' + b.uhrzeitBis);
-                
-//                 // a und b beginnen gleichzeitig
-//                 // check auf endZeit
-//                 if (aBis.getTime() < bBis.getTime()) {
-//                     // a endet früher
-//                     return -1;
-//                 } else {
-//                     // b endet früher oder ist gleich
-//                     return 1;
-//                 }
-//             } else {
-//                 // b beginnt früher
-//                 return 1;
-//             }
-//         }
-//     }
-// }
-
 function displayAppointments(appointments) {
     $(appointments).each(function() {
-        let card = $('<div class="appointmentCard"></div>');
+
+        // <div class="card">
+        //     <div class="card-body">
+        //         <h5 class="card-title">Special title treatment</h5>
+        //         <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+        //         <a href="#" class="btn btn-primary">Go somewhere</a>
+        //     </div>
+        // </div>
+
+        let col = $('<div class="col"></div>');
+        let card = $('<div class="card h-100"></div>');
+        let cardBody = $('<div class="card-body"></div>');
         var now = new Date();
-        let title = $('<h3>' + this.title + '</h3>');
-        let row = $('<div class="row spacebetween"></div>');
-        let ort = $('<p class="ort">' + this.ort + '</p>');
-        let datum = $('<p class="datum">' + new Date(this.ablaufdatum).toLocaleDateString() + '</p>');
+        let title = $('<h5 class="card-title">' + this.title + '</h5>');
+        let row = $('<div class="row d-flex justify-content-between"></div>');
+        let ort = $('<p class="ort col-auto">' + this.ort + '</p>');
+        let datum = $('<p class="datum col-auto">' + new Date(this.ablaufdatum).toLocaleDateString() + '</p>');
         row.append(ort, datum);
-        let hr = $('<hr>');
-        let desc = $('<p class="desc">' + this.desc + '</p>'); 
-        let button = $('<button class="cardBtn" data-aid="' + this.aId + '">Zur Abstimmung</button>');
-        card.append(title, row, hr, desc, button);
+        let desc = $('<p class="card-text">' + this.desc + '</p>'); 
+        let button = $('<button class="btn ' + (now > new Date(this.ablaufdatum) ? 'btn-secondary' : 'btn-primary') + '" data-aid="' + this.aId + '">Zur Abstimmung</button>');
+        cardBody.append(title, row, desc, button);
+        card.append(cardBody);
+        col.append(card);
 
         if (now > new Date(this.ablaufdatum)) {
-            $(card).addClass("abgelaufen");
-            $("#abgelaufen").prepend(card);
+            $("#abgelaufen").prepend(col);
         } else {
-            $("#appointments-wrapper").append(card);
+            $("#appointments-wrapper").append(col);
         }
     });
 }
+
+function saveNewAppointment() {    // save new appointment
+    let title = $('#title').val();
+    let desc = $('#desc').val();
+    let ort = $('#ort').val();
+    let ablaufdatum = $('#ablaufdatum').val();
+
+    if (title.length == 0 || ort.length == 0 || ablaufdatum.length == 0 || desc.length == 0) {
+        showError("Bitte füllen Sie alle Felder aus!");
+        return;
+    }
+
+    let toSave = {
+        "title": title,
+        "desc": desc,
+        "ort": ort,
+        "ablaufdatum": ablaufdatum
+    };
+
+    $.ajax({
+        type: "POST",
+        url: ".././backend/serviceHandler.php",
+        data: {method: "saveAppointment", param: JSON.stringify(toSave)},
+        dataType: "json",
+        success: function (aid) {
+            console.log("aid: ", aid);
+
+            saveTermine(aid);
+
+            $("body").load("appointments.html", function () {
+                loadAppointments();
+                setTimeout(() => {
+                    showSuccess("Appointment wurde erfolgreich erstellt!");
+                }, 100);
+            });
+            
+        }
+    });
+}
+
+function saveTermine(aid) {    
+    let termine = $('#terminArea .termin');
+
+    console.log(termine);
+    // let toSave = {
+    //     "aid": aid,
+    //     "datum": datum,
+    //     "uhrzeitVon": uhrzeitVon,
+    //     "uhrzeitBis": uhrzeitBis
+    // };
+
+    // $.ajax({
+    //     type: "POST",
+    //     url: ".././backend/serviceHandler.php",
+    //     data: {method: "saveNewTermin", param: JSON.stringify(toSave)},
+    //     dataType: "json",
+    //     success: function (response) {
+    //         showSuccess("Termin wurde ganz erfolgreich erstellt!");
+    //     }
+    // });
+}
+
+$('body').on('click', '#newAppointment #addTermin', function(event) {
+    event.preventDefault();
+    let termin = $('<div class="termin row"></div>');
+    let datum = $('<label class="col-auto">Datum:</label>');
+    let date = $('<input class="col-auto" type="date" name="datum">');
+    let uhrzeit = $('<label class="col-auto">Uhrzeit:</label>')
+    let von = $('<input class="col-auto" type="time" name="von">');
+    let seperator = $('<p class="col-auto">-</p>');
+    let bis = $('<input class="col-auto" type="time" name="bis">');
+    let deleteBtn = $('<button class="delete col-auto"><i class="bi bi-x"></i></button>');
+
+    termin.append(datum, date, uhrzeit, von, seperator, bis, deleteBtn);
+    $('#terminArea').append(termin);
+});
+
+$('body').on('click', '#terminArea .delete', function(event) {
+    event.preventDefault();
+    $(this).closest(".termin").remove();
+})

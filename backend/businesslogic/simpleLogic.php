@@ -39,6 +39,10 @@ class SimpleLogic
                 $res = $this->dh->queryCommentsByAppointment($param);
                 break;
 
+            case "saveAppointment":
+                $res = $this->dh->saveAppointment(json_decode($param));
+                break;
+
             default:
                 $res = null;
                 break;
