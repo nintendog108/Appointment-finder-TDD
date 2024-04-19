@@ -391,8 +391,23 @@ function displayAppointments(appointments) {
         row.append(ort, datum);
         let desc = $('<p class="card-text">' + this.desc + '</p>'); 
         let button = $('<button class="cardBtn btn ' + (now > new Date(this.ablaufdatum) ? 'btn-secondary' : 'btn-primary') + '" data-aid="' + this.aId + '">Zur Abstimmung</button>');
-        cardBody.append(title, row, desc, button);
+        
         card.append(cardBody);
+
+        // <div class="card-footer text-body-secondary">
+        //     2 days ago
+        // </div>
+        let ablauf = new Date(this.ablaufdatum);
+        let diff = new Date(now - ablauf);
+        diff = diff/1000/60/60/24;
+
+        if (diff > 0) {
+            let cardFooter = $('<div class="card-footer text-body-secondardy">vor ' + Math.floor(diff) + ' Tagen abgelaufen</div>');
+            card.append(cardFooter);
+        }
+        
+        cardBody.append(title, row, desc, button);
+        
         col.append(card);
 
         if (now.getTime() > new Date(this.ablaufdatum).getTime()) {
