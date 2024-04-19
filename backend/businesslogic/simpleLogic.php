@@ -43,6 +43,14 @@ class SimpleLogic
                 $res = $this->dh->saveAppointment(json_decode($param));
                 break;
 
+            case "deleteAppointment":
+                $res = $this->dh->deleteAppointment($param);
+                break;
+
+            case "saveTermine":
+                $res = $this->dh->saveTermine(json_decode($param));
+                break;
+
             default:
                 $res = null;
                 break;

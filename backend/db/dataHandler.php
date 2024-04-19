@@ -7,6 +7,18 @@ include ("./config/dbaccess.php");
 
 class DataHandler
 {
+    public function saveTermine($termine)
+    {
+        $res = $this->saveAllTermine($termine);
+        return $res;
+    }
+
+    public function deleteAppointment($id)
+    {
+        $res = $this->deleteAppointmentFromDB($id);
+        return $res;
+    }
+
     public function saveAppointment($param)
     {
         $res = $this->createAppointment($param->title, $param->desc, $param->ort, $param->ablaufdatum);
@@ -67,6 +79,23 @@ class DataHandler
     }
 
     // PRIVATE FUNCTIONS
+    private static function deleteAppointmentFromDB($aid)
+    {
+        global $db_host, $db_user, $db_password, $database;
+
+        $db_obj = new mysqli($db_host, $db_user, $db_password, $database);
+
+        if ($db_obj->connect_error) {
+            return;
+        }
+
+        $sql = "DELETE FROM `appointments` WHERE `AID` = ?";
+        $stmt = $db_obj->prepare($sql);
+        $stmt->bind_param("i", $aid);
+        $stmt->execute();
+        return $aid;
+    }
+
     private static function createAppointment($title, $beschreibung, $ort, $ablaufdatum) // new appointment anlegen
     {
         global $db_host, $db_user, $db_password, $database;
@@ -120,6 +149,25 @@ class DataHandler
 
         foreach ($votings as $tId) {
             $stmt->bind_param("is", $tId, $name);
+            $stmt->execute();
+        }
+    }
+
+    private static function saveAllTermine($termine)
+    {
+        global $db_host, $db_user, $db_password, $database;
+
+        $db_obj = new mysqli($db_host, $db_user, $db_password, $database);
+
+        if ($db_obj->connect_error) {
+            return;
+        }
+
+        $sql = "INSERT INTO `termine` (`AID`, `Datum`, `UhrzeitVon`, `UhrzeitBis`) VALUES (?, ?, ?, ?)";
+        $stmt = $db_obj->prepare($sql);
+
+        foreach ($termine as $termin) {
+            $stmt->bind_param("isss", $termin->aid, $termin->date, $termin->uhrzeitVon, $termin->uhrzeitBis);
             $stmt->execute();
         }
     }

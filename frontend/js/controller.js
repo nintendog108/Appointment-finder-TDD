@@ -13,13 +13,14 @@ function loadAppointments() {
         success: function (response) {
             displayAppointments(response);
         },
-    error: function (error) {
-         console.error(error);
+        error: function (error) {
+            showError("Ein Fehler ist aufgetreten!");
+            console.error(error);
        }
     });
 }
 
-$("body").on("click", "#appointmentsView .btn", function(){
+$("body").on("click", "#appointmentsView .cardBtn", function(){
     let aid = $(this).data("aid");
 
     $("body").load("detailedView.html", function() {
@@ -37,8 +38,6 @@ function loadAppointment(aid) {
         data: {method: "queryAppointmentById", param: aid},
         dataType: "json",
         success: function (response) {
-            console.log(response);
-            
             $("#title").text(response.title);
             $("#ort").text(response.ort);
             $("#ablaufdatum").text(new Date(response.ablaufdatum).toLocaleDateString());
@@ -46,6 +45,8 @@ function loadAppointment(aid) {
         },
         error: function(error) {
             console.error(error);
+
+            showError("Ein Fehler ist aufgetreten!");
         }
     });
 
@@ -211,8 +212,6 @@ function modifyAndPrintVotings(aid, response) {
 }
 
 function printVotings(votings) {
-    console.log(votings);
-
     $.each(votings, function (index, person) { 
         let tr = $('<tr></tr>');
         let name = $('<td><p>' + person.name + '</p></td>');
@@ -242,6 +241,28 @@ $('body').on('click', '#newAppointment #speichern', function(event) {
     event.preventDefault();
     saveNewAppointment();
 });
+
+$('body').on('click', '#detailedView #delete', function() {
+    $.ajax({
+        type: "POST",
+        url: ".././backend/serviceHandler.php",
+        data: {method: "deleteAppointment", param: $('#detailedView').data("aid")},
+        dataType: "json",
+        success: function (response) {
+            $("body").load("appointments.html", function () {
+                loadAppointments();
+
+                setTimeout(() => {
+                    showSuccess("Appointment wurde erfolgreich gelöscht!");     
+                }, 100);
+            });
+        },
+        error: function (error) {
+            console.error(error);
+            showError("Ein Fehler ist aufgetreten!");
+        }
+    });
+})
 
 
 $("body").on("click", "#detailedView #speichern", function () {
@@ -326,7 +347,7 @@ function showError(message) {
 
     setTimeout(() => {
         $('#error').toggleClass("show");
-    }, 4000);
+    }, 3000);
 }
 
 function showSuccess(message) {
@@ -335,7 +356,7 @@ function showSuccess(message) {
 
     setTimeout(() => {
         $('#success').toggleClass("show");
-    }, 4000);
+    }, 3000);
 }
 
 function displayAppointments(appointments) {
@@ -359,12 +380,12 @@ function displayAppointments(appointments) {
         let datum = $('<p class="datum col-auto">' + new Date(this.ablaufdatum).toLocaleDateString() + '</p>');
         row.append(ort, datum);
         let desc = $('<p class="card-text">' + this.desc + '</p>'); 
-        let button = $('<button class="btn ' + (now > new Date(this.ablaufdatum) ? 'btn-secondary' : 'btn-primary') + '" data-aid="' + this.aId + '">Zur Abstimmung</button>');
+        let button = $('<button class="cardBtn btn ' + (now > new Date(this.ablaufdatum) ? 'btn-secondary' : 'btn-primary') + '" data-aid="' + this.aId + '">Zur Abstimmung</button>');
         cardBody.append(title, row, desc, button);
         card.append(cardBody);
         col.append(card);
 
-        if (now > new Date(this.ablaufdatum)) {
+        if (now.getTime() > new Date(this.ablaufdatum).getTime()) {
             $("#abgelaufen").prepend(col);
         } else {
             $("#appointments-wrapper").append(col);
@@ -396,17 +417,9 @@ function saveNewAppointment() {    // save new appointment
         data: {method: "saveAppointment", param: JSON.stringify(toSave)},
         dataType: "json",
         success: function (aid) {
-            console.log("aid: ", aid);
-
-            saveTermine(aid);
-
             $("body").load("appointments.html", function () {
-                loadAppointments();
-                setTimeout(() => {
-                    showSuccess("Appointment wurde erfolgreich erstellt!");
-                }, 100);
+                saveTermine(aid);
             });
-            
         }
     });
 }
@@ -414,23 +427,54 @@ function saveNewAppointment() {    // save new appointment
 function saveTermine(aid) {    
     let termine = $('#terminArea .termin');
 
-    console.log(termine);
-    // let toSave = {
-    //     "aid": aid,
-    //     "datum": datum,
-    //     "uhrzeitVon": uhrzeitVon,
-    //     "uhrzeitBis": uhrzeitBis
-    // };
+    if (termine == null) {
+        showError("Bitte geben Sie mindestens einen Termin an!");
+        return;
+    }
 
-    // $.ajax({
-    //     type: "POST",
-    //     url: ".././backend/serviceHandler.php",
-    //     data: {method: "saveNewTermin", param: JSON.stringify(toSave)},
-    //     dataType: "json",
-    //     success: function (response) {
-    //         showSuccess("Termin wurde ganz erfolgreich erstellt!");
-    //     }
-    // });
+    let terminArray = [];
+
+    $.each(termine, function (index, termin) { 
+        console.log(termin);
+
+        let date = $(termin).children('input[name="datum"]').val();
+        let uhrzeitVon = $(termin).children('input[name="von"]').val();
+        let uhrzeitBis = $(termin).children('input[name="bis"]').val();
+
+        if (date == null || uhrzeitVon == null || uhrzeitBis == null) {
+            showError("Bitte füllen Sie alle Felder aus!");
+            return;
+        }
+
+        let terminJSON = {"aid":aid, "datum": date, "uhrzeitVon": uhrzeitVon, "uhrzeitBis": uhrzeitBis};
+        terminArray.push(terminJSON);
+
+        // <div class="termin row">
+        //     <label class="col-auto">Datum:</label>
+        //     <input class="col-auto" type="date" name="datum">
+        //     <label class="col-auto">Uhrzeit:</label>
+        //     <input class="col-auto" type="time" name="von">
+        //     <p class="col-auto">-</p>
+        //     <input class="col-auto" type="time" name="bis">
+        //     <button class="delete col-auto"><i class="bi bi-x"></i></button>
+        // </div>
+    });
+    
+    $.ajax({
+        type: "POST",
+        url: ".././backend/serviceHandler.php",
+        data: {method: "saveTermine", param:JSON.stringify(terminArray)},
+        dataType: "json",
+        success: function (response) {
+            loadAppointments();
+            setTimeout(() => {
+                showSuccess("Appointment wurde erfolgreich erstellt!");
+            }, 100);
+        },
+        error: function (response) {
+            showError("Ein Fehler ist aufgetreten!");
+        }
+    });
 }
 
 $('body').on('click', '#newAppointment #addTermin', function(event) {
