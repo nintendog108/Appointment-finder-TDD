@@ -341,19 +341,19 @@ function saveVoting(selection, comment, username) {
 
 function showError(message) {
     $('#errorMessage').text(message);
-    $('#error').toggleClass("show");
+    $('#error').addClass("show");
 
     setTimeout(() => {
-        $('#error').toggleClass("show");
+        $('#error').removeClass("show");
     }, 3000);
 }
 
 function showSuccess(message) {
     $('#successMessage').text(message);
-    $('#success').toggleClass("show");
+    $('#success').addClass("show");
 
     setTimeout(() => {
-        $('#success').toggleClass("show");
+        $('#success').removeClass("show");
     }, 3000);
 }
 
