@@ -1,10 +1,12 @@
 $(document).ready(function () {
+    // beim aufruf der webseite wird appointments.html geladen und alle appointments reingeladen
     $("body").load("appointments.html", function () {
         loadAppointments();
     });
 });
 
 function loadAppointments() {
+    // ladet alle Appointments
     $.ajax({
         type: "POST",
         url: ".././backend/serviceHandler.php",
@@ -21,28 +23,32 @@ function loadAppointments() {
 }
 
 $("body").on("click", "#appointmentsView .cardBtn", function(){
+    // click auf ein Appointment Button
+    // hol id von button
     let aid = $(this).data("aid");
 
+    // lade detailedView.html und lade das Appointment mit der id von button
     $("body").load("detailedView.html", function() {
+        // setze die id um später drauf zuzugreifen
         $('#detailedView').data("aid", aid);
-
         loadAppointment(aid);
     });
 });
 
 function loadAppointment(aid) {
-    // query appointment and display basic information
+    // lade alle appointments zu aid
     $.ajax({
         type: "POST",
         url: ".././backend/serviceHandler.php",
         data: {method: "queryAppointmentById", param: aid},
         dataType: "json",
         success: function (response) {
+            // infos anzeigen
             $("#title").text(response.title);
             $("#ort").text(response.ort);
             $("#ablaufdatum").text(new Date(response.ablaufdatum).toLocaleDateString());
             $("#desc").text(response.desc);
-
+            // lade termine zu aid
             loadTermine(aid, response.ablaufdatum);
         },
         error: function(error) {
@@ -52,16 +58,17 @@ function loadAppointment(aid) {
         }
     });
 
-    // query comments by aid and display them
+    // lade all Kommentare zu aid
     $.ajax({
         type: "POST",
         url: ".././backend/serviceHandler.php",
         data: {method: "queryCommentsByAppointment", param: aid},
         dataType: "json",
         success: function (response) {
-            // nothing in database
+            // keine kommentare in der Datenbank
             if (response == 1) return;
 
+            // alle kommentare werden durchlaufen, erstellt und an die commentArea angehängt 
             $.each(response, function (index, kommentar) { 
                 let kommentarDiv = $('<div class="card mb-3"></div>');
                 let cardHeader = $('<div class="card-header">' + kommentar.name + '</div>');
@@ -77,23 +84,23 @@ function loadAppointment(aid) {
 }
 
 function loadTermine (aid, ablaufdatum) {
-    // query termine and display them + create voting options
+    // lade all Termine
     $.ajax({
         type: "POST",
         url: ".././backend/serviceHandler.php",
         data: {method: "queryTermineByAppointmentId", param: aid},
         dataType: "json",
         success: function (response) {
-            // nothing in database
-            if (response == 1) return;
-
+            // erstelle eine Tabelle
             let table = $('<table class="table table-bordered"></table>');
             let tbody = $('<tbody></tbody>');
             table.append(tbody);
             let tr = $('<tr><td></td></tr>');
             tbody.append(tr);
 
+            // durchlauf alle Termine
             $.each(response, function (index, termin) {
+                // erstelle für jeden Termin eine Zelle in der Tabelle
                 let terminDiv = $('<td class="termin"></td>');
                 let dateDiv = $('<div class="date"></div>');
                 let uhrzeitDiv = $('<div class="uhrzeit"></div>');
@@ -111,19 +118,22 @@ function loadTermine (aid, ablaufdatum) {
                 tr.append(terminDiv);
             });
 
-            // create voting options
+            // nur wenn Appointment nicht abgelaufen
             let now = new Date();
             if (now.getTime() < new Date(ablaufdatum).getTime()) {
+                // erstelle input feld für name
                 tr = $('<tr id="selection"></tr>');
-                let input = $('<td><input type="text" id="username"></td>');
+                let input = $('<td><label>Name:</label><input type="text" id="username"></td>');
                 tr.append(input);
 
+                // erstelle für jeden Termin eine Checkbox mit value = tId
                 $.each(response, function (index, termin) {
                     let checkbox = $('<td><input type="checkbox" value="' + termin.tId + '"></td>');
 
                     tr.append(checkbox);
                 });
 
+                // erstelle Textarea für kommentare und Senden Button
                 let textarea = $('<textarea class="form-control mb-3" id="comment" placeholder="Kommentar hinzuf&uuml;gen"></textarea>');
                 let button = $('<button class="btn btn-primary" id="speichern">Speichern</button>');
                 $(textarea).insertBefore("#commentArea");
@@ -133,25 +143,45 @@ function loadTermine (aid, ablaufdatum) {
             tbody.append(tr);
             $('#voting').append(table);
 
-            // get prev votings and display them
+            // lade alle bisherigen Votings
             $.ajax({
                 type: "POST",
                 url: ".././backend/serviceHandler.php",
                 data: {method:"queryAllVotingsByAppointmentId", param: aid},
                 dataType: "json",
                 success: function (response) {
-                    // nothing in database
+                    // keine Votings in der Datenbank
                     if (response == 1) return;
+                    // bearbeite response und zeig Votings an
                     modifyAndPrintVotings(aid, response);    
                 }
             });
         }
     });
 }
-
+// bearbeitet die Struktur des response damit wir die Votings leichter anzeigen können
 function modifyAndPrintVotings(aid, response) {
+    /**
+     * ALTE STRUKTUR
+     * 
+     * { vId: 7, tId: 5, name: "Fanni" }
+     * { vId: 8, tId: 3, name: "Fanni" }
+     * { vId: 9, tId: 3, name: "Florian" }
+     *
+     * GEWÜNSCHTE STRUKTUR
+     * [
+        * {
+            * "name": "Fanni",
+            * "votings": [1, 1]
+        * },
+        * {
+            * "name": "Florian",
+            * "votings": [0, 1]
+        * }
+     * ]
+     */
     let newresponse = [];
-
+    // lade alle Termine
     $.ajax({
         type: "POST",
         url: ".././backend/serviceHandler.php",
@@ -201,33 +231,20 @@ function modifyAndPrintVotings(aid, response) {
             }
             // letzte person ins array hinzufügen
             newresponse.push(person);
+            // zeige alle votings mit neuer struktur an
             printVotings(newresponse);
         }
     });
-    /**
-     * ALTE STRUKTUR
-     * 
-     * { vId: 7, tId: 5, name: "Fanni" }
-     * { vId: 8, tId: 3, name: "Fanni" }
-     * { vId: 9, tId: 3, name: "Florian" }
-     *
-     * NEUE STRUKTUR
-     * [{
-     *  "name": "Fanni",
-     *  "votings": [1, 1]
-     * },
-     * {
-     *  "name": "Florian",
-     *  "votings": [0, 1]
-     * }]
-     */
 }
 
 function printVotings(votings) {
-    $.each(votings, function (index, person) { 
+    // durchlauf alle person mit deren Votings
+    $.each(votings, function (index, person) {
+        // erstelle für jede person eine zeile in der tabelle
         let tr = $('<tr></tr>');
         let name = $('<td><p>' + person.name + '</p></td>');
         tr.append(name);
+        // erstelle für jede person die votings
         $.each(person.votings, function (i, termin) {
             let checkbox = $('<td class="' + (termin ? 'voted' : 'notVoted') + '">' + (termin ? '<i class="bi bi-check"></i>' : '<i class="bi bi-x"></i>') + '</td>');
             tr.append(checkbox);
@@ -238,30 +255,38 @@ function printVotings(votings) {
 }
 
 $('body').on('click', '#back', function() {
+    // click auf zurück pfeil auf allen seiten führt zu appointments.html
     $("body").load("appointments.html", function () {
         loadAppointments();
     });
 });
 
 $('body').on('click', '#appointmentsView #add', function() {
+    // click auf + Button auf startseite führt zu newAppointment.html
     $('body').load('newAppointment.html');
 });
 
 $('body').on('click', '#newAppointment #speichern', function(event) {
+    // click auf Speichern Button beim erstellen eines Appointments
     event.preventDefault();
+    // speicher Appointment
     saveNewAppointment();
 });
 
 $('body').on('click', '#detailedView #delete', function() {
+    // click auf delete in einzelner Appointmentansicht
+    // lösche appointment zu aid
     $.ajax({
         type: "POST",
         url: ".././backend/serviceHandler.php",
         data: {method: "deleteAppointment", param: $('#detailedView').data("aid")},
         dataType: "json",
         success: function (response) {
+            // lade appointments.html um auf die startseite zurückzukehren
             $("body").load("appointments.html", function () {
                 loadAppointments();
 
+                // kurz warten damit animation richtig funktioniert
                 setTimeout(() => {
                     showSuccess("Appointment wurde erfolgreich gelöscht!");     
                 }, 100);
@@ -276,6 +301,8 @@ $('body').on('click', '#detailedView #delete', function() {
 
 
 $("body").on("click", "#detailedView #speichern", function () {
+    // click auf Speichern Button in einzelner Appointmentansicht
+    // hol username, votings, und kommentar
     let username = $('#selection #username');
     let comment = $('#comment');
     let checkboxen = $('#selection input[type="checkbox"]');
@@ -285,6 +312,7 @@ $("body").on("click", "#detailedView #speichern", function () {
         return;
     }
 
+    // füge votings in einer array zusammen
     let selection = [];
     $.each(checkboxen, function (index, checkbox) { 
         if ($(checkbox).is(":checked")) {
@@ -296,17 +324,18 @@ $("body").on("click", "#detailedView #speichern", function () {
         return;
     }
 
-    // check if there is already a voting with the same name
+    // lade alle bisherigen Votings
     $.ajax({
         type: "POST",
         url: ".././backend/serviceHandler.php",
         data: {method:"queryAllVotingsByAppointmentId", param:$('#detailedView').data('aid')},
         dataType: "json",
         success: function (response) {
-            console.log(response);
             let usernameExists = false;
 
+            // wenn 1 dann gibt es keine Votings
             if (response != 1) {
+                // durchlauf alle votings und schau ob name bereits gevoted hat
                 $.each(response, function (index, voting) { 
                     if (voting.name === username.val()) {
                         usernameExists = true;
@@ -324,6 +353,7 @@ $("body").on("click", "#detailedView #speichern", function () {
 });
 
 function saveVoting(selection, comment, username) {
+    // json erstellen mit daten die gespeichert werden müssen
     let toSave = {
         "aid": $('#detailedView').data("aid"),
         "name": username,
@@ -331,13 +361,14 @@ function saveVoting(selection, comment, username) {
         "comment": comment,
     };
 
-    $.ajax({               // save voting
+    // speicher voting
+    $.ajax({
         type: "POST",
         url: ".././backend/serviceHandler.php",
         data: {method:"saveVoting", param:JSON.stringify(toSave)},
         dataType: "json",
         success: function (response) {
-            // success Message
+            // lade einzelne Appointmentansicht neu um neues voting/kommentar anzuzeigen
             let aid = $('#detailedView').data("aid");
 
             $("body").load("detailedView.html", function() {
@@ -352,6 +383,7 @@ function saveVoting(selection, comment, username) {
 }
 
 function showError(message) {
+    // error alert
     $('#errorMessage').text(message);
     $('#error').addClass("show");
 
@@ -361,6 +393,7 @@ function showError(message) {
 }
 
 function showSuccess(message) {
+    // success alert
     $('#successMessage').text(message);
     $('#success').addClass("show");
 
@@ -370,55 +403,47 @@ function showSuccess(message) {
 }
 
 function displayAppointments(appointments) {
+    // lauf alle appointments durch
     $(appointments).each(function() {
-
-        // <div class="card">
-        //     <div class="card-body">
-        //         <h5 class="card-title">Special title treatment</h5>
-        //         <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        //         <a href="#" class="btn btn-primary">Go somewhere</a>
-        //     </div>
-        // </div>
-
+        // erstelle col und card für jedes appointment
         let col = $('<div class="col"></div>');
         let card = $('<div class="card h-100"></div>');
         let cardBody = $('<div class="card-body"></div>');
         var now = new Date();
+        let ablauf = new Date(this.ablaufdatum);
         let title = $('<h5 class="card-title">' + this.title + '</h5>');
         let row = $('<div class="row d-flex justify-content-between"></div>');
         let ort = $('<p class="ort col-auto">' + this.ort + '</p>');
-        let datum = $('<p class="datum col-auto">' + new Date(this.ablaufdatum).toLocaleDateString() + '</p>');
+        let datum = $('<p class="datum col-auto">' + ablauf.toLocaleDateString() + '</p>');
         row.append(ort, datum);
         let desc = $('<p class="card-text">' + this.desc + '</p>'); 
-        let button = $('<button class="cardBtn btn ' + (now > new Date(this.ablaufdatum) ? 'btn-secondary' : 'btn-primary') + '" data-aid="' + this.aId + '">Zur Abstimmung</button>');
-        
+        let button = $('<button class="cardBtn btn ' + (now > ablauf ? 'btn-secondary' : 'btn-primary') + '" data-aid="' + this.aId + '">Zur Abstimmung</button>');
+        cardBody.append(title, row, desc, button);
         card.append(cardBody);
 
-        // <div class="card-footer text-body-secondary">
-        //     2 days ago
-        // </div>
-        let ablauf = new Date(this.ablaufdatum);
         let diff = new Date(now - ablauf);
         diff = diff/1000/60/60/24;
 
+        // wenn bereits abgelaufen zeig an vor wievielen tagen 
         if (diff > 0) {
-            let cardFooter = $('<div class="card-footer text-body-secondardy">vor ' + Math.floor(diff) + ' Tagen abgelaufen</div>');
+            let cardFooter = $('<div class="card-footer text-body-secondardy">vor ' + Math.floor(diff) + (Math.floor(diff) == 1 ? ' Tag' : ' Tagen') + ' abgelaufen</div>');
             card.append(cardFooter);
         }
-        
-        cardBody.append(title, row, desc, button);
-        
         col.append(card);
 
-        if (now.getTime() > new Date(this.ablaufdatum).getTime()) {
+        // wenn bereits abgelaufen füg sie in den #abgelaufen Wrapper ein
+        if (diff > 0) {
+            // prepend damit das was am längsten abgelaufen ist ganz unten ist
             $("#abgelaufen").prepend(col);
         } else {
+            // append damit das was als nächstes abläuft ganz oben ist
             $("#appointments-wrapper").append(col);
         }
     });
 }
 
-function saveNewAppointment() {    // save new appointment
+function saveNewAppointment() {
+    // hol title, beschreibung, ort und ablaufdatum
     let title = $('#title').val();
     let desc = $('#desc').val();
     let ort = $('#ort').val();
@@ -429,6 +454,7 @@ function saveNewAppointment() {    // save new appointment
         return;
     }
 
+    // json aus daten die gespeichert werden sollen zusammenstellen
     let toSave = {
         "title": title,
         "desc": desc,
@@ -436,6 +462,7 @@ function saveNewAppointment() {    // save new appointment
         "ablaufdatum": ablaufdatum
     };
 
+    // appointment speichern
     $.ajax({
         type: "POST",
         url: ".././backend/serviceHandler.php",
@@ -448,18 +475,13 @@ function saveNewAppointment() {    // save new appointment
 }
 
 function saveTermine(aid) {    
+    // hol alle termine
     let termine = $('#terminArea .termin');
-
-    if (termine == null) {
-        showError("Bitte geben Sie mindestens einen Termin an!");
-        return;
-    }
-
     let terminArray = [];
 
-    $.each(termine, function (index, termin) { 
-        console.log(termin);
-
+    // alle termine durchlaufen
+    $.each(termine, function (index, termin) {
+        // für jeden termin datum, uhrzeit Von und Uhrzeit Bis holen
         let date = $(termin).children('input[name="datum"]').val();
         let uhrzeitVon = $(termin).children('input[name="von"]').val();
         let uhrzeitBis = $(termin).children('input[name="bis"]').val();
@@ -469,43 +491,41 @@ function saveTermine(aid) {
             return;
         }
 
+        // json erstellen mit daten des Termins
         let terminJSON = {"aid":aid, "datum": date, "uhrzeitVon": uhrzeitVon, "uhrzeitBis": uhrzeitBis};
+        // alle jsons in array zusammenfügen
         terminArray.push(terminJSON);
-
-        // <div class="termin row">
-        //     <label class="col-auto">Datum:</label>
-        //     <input class="col-auto" type="date" name="datum">
-        //     <label class="col-auto">Uhrzeit:</label>
-        //     <input class="col-auto" type="time" name="von">
-        //     <p class="col-auto">-</p>
-        //     <input class="col-auto" type="time" name="bis">
-        //     <button class="delete col-auto"><i class="bi bi-x"></i></button>
-        // </div>
     });
-
     if (terminArray.length == 0) return;
     
+    // termine speichern
     $.ajax({
         type: "POST",
         url: ".././backend/serviceHandler.php",
         data: {method: "saveTermine", param:JSON.stringify(terminArray)},
         dataType: "json",
         success: function (response) {
+            // appointments.html laden um auf startseite zu kommen
             $("body").load("appointments.html", function () {
                 loadAppointments();
+                // kurz warten damit animation nach seitenwechsel richtig funktioniert
                 setTimeout(() => {
                     showSuccess("Appointment wurde erfolgreich erstellt!");
                 }, 100);
             });
         },
         error: function (response) {
+            console.error(response);
+
             showError("Ein Fehler ist aufgetreten!");
         }
     });
 }
 
 $('body').on('click', '#newAppointment #addTermin', function(event) {
+    // click auf + für einen neuen Termin
     event.preventDefault();
+    // erstelle ein neues Termin Div
     let termin = $('<div class="termin row"></div>');
     let datum = $('<label class="col-auto">Datum:</label>');
     let date = $('<input class="col-auto" type="date" name="datum">');
@@ -520,6 +540,8 @@ $('body').on('click', '#newAppointment #addTermin', function(event) {
 });
 
 $('body').on('click', '#terminArea .delete', function(event) {
+    // click auf x bei termin
     event.preventDefault();
+    // termin Div löschen
     $(this).closest(".termin").remove();
 })
