@@ -167,9 +167,10 @@ class DataHandler
         $stmt = $db_obj->prepare($sql);
 
         foreach ($termine as $termin) {
-            $stmt->bind_param("isss", $termin->aid, $termin->date, $termin->uhrzeitVon, $termin->uhrzeitBis);
+            $stmt->bind_param("isss", $termin->aid, $termin->datum, $termin->uhrzeitVon, $termin->uhrzeitBis);
             $stmt->execute();
         }
+        return $termine;
     }
 
     private static function getAllAppointments()
@@ -229,7 +230,6 @@ class DataHandler
 
         $sql = "SELECT * FROM `termine` JOIN `voting` ON termine.TID = voting.TID WHERE `AID` = ? ORDER BY `VotingTime`, `Name`, `Datum`, `UhrzeitVon`, `UhrzeitBis`";
 
-
         $stmt = $db_obj->prepare($sql);
         $stmt->bind_param("i", $aid);
         $stmt->execute();
@@ -267,22 +267,3 @@ class DataHandler
         return count($commentArray) ? $commentArray : 1;
     }
 }
-
-
-
-// public static function createTermin($tid, $aid, $datum, $uhrzeitvon, $uhrzeitbis) // new termin anlegen
-// {
-//     global $db_host, $db_user, $db_password, $database;
-
-//     $db_obj = new mysqli($db_host, $db_user, $db_password, $database);
-
-//     if ($db_obj->connect_error) {
-//         return;
-//     }
-
-//     $sql = "INSERT INTO `termine` (`TID`, `AID`, `Datum`, `UhrzeitVon`, `UhrzeitBis`) VALUES (?, ?, ?, ?, ?)";
-//     $stmt = $db_obj->prepare($sql);
-//     $stmt->bind_param("sssss", $tid, $aid, $datum, $uhrzeitvon, $uhrzeitbis);
-//     $stmt->execute();
-
-// }

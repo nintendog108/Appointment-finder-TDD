@@ -216,9 +216,7 @@ function printVotings(votings) {
         let tr = $('<tr></tr>');
         let name = $('<td><p>' + person.name + '</p></td>');
         tr.append(name);
-        console.log(person.votings);
         $.each(person.votings, function (i, termin) {
-            console.log(termin);
             let checkbox = $('<td class="' + (termin ? 'voted' : 'notVoted') + '">' + (termin ? '<i class="bi bi-check"></i>' : '<i class="bi bi-x"></i>') + '</td>');
             tr.append(checkbox);
         });
@@ -417,9 +415,7 @@ function saveNewAppointment() {    // save new appointment
         data: {method: "saveAppointment", param: JSON.stringify(toSave)},
         dataType: "json",
         success: function (aid) {
-            $("body").load("appointments.html", function () {
-                saveTermine(aid);
-            });
+            saveTermine(aid);
         }
     });
 }
@@ -449,6 +445,8 @@ function saveTermine(aid) {
         let terminJSON = {"aid":aid, "datum": date, "uhrzeitVon": uhrzeitVon, "uhrzeitBis": uhrzeitBis};
         terminArray.push(terminJSON);
 
+        console.log(terminArray);
+
         // <div class="termin row">
         //     <label class="col-auto">Datum:</label>
         //     <input class="col-auto" type="date" name="datum">
@@ -466,15 +464,18 @@ function saveTermine(aid) {
         data: {method: "saveTermine", param:JSON.stringify(terminArray)},
         dataType: "json",
         success: function (response) {
-            loadAppointments();
-            setTimeout(() => {
-                showSuccess("Appointment wurde erfolgreich erstellt!");
-            }, 100);
+            $("body").load("appointments.html", function () {
+                loadAppointments();
+                setTimeout(() => {
+                    showSuccess("Appointment wurde erfolgreich erstellt!");
+                }, 100);
+            });
         },
         error: function (response) {
             showError("Ein Fehler ist aufgetreten!");
         }
     });
+
 }
 
 $('body').on('click', '#newAppointment #addTermin', function(event) {
