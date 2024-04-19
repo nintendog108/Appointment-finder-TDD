@@ -28,7 +28,7 @@ class SimpleLogic
                 break;
 
             case "saveVoting":
-                $res = $this->dh->saveVoting(json_decode($param));
+                $res = $this->dh->saveVoting(json_decode($param)); //json decode macht aus einem json string ein php objekt um damit arbeiten zu können
                 break;
 
             case "queryAllVotingsByAppointmentId":

@@ -81,19 +81,19 @@ class DataHandler
     // PRIVATE FUNCTIONS
     private static function deleteAppointmentFromDB($aid)
     {
-        global $db_host, $db_user, $db_password, $database;
+        global $db_host, $db_user, $db_password, $database; 
 
-        $db_obj = new mysqli($db_host, $db_user, $db_password, $database);
+        $db_obj = new mysqli($db_host, $db_user, $db_password, $database); //Verbindung zur Datenbank herstellen
 
-        if ($db_obj->connect_error) {
+        if ($db_obj->connect_error) { //F´fehlerbehandlung falls Verbindung fehlschlägt
             return;
         }
 
         $sql = "DELETE FROM `appointments` WHERE `AID` = ?";
         $stmt = $db_obj->prepare($sql);
-        $stmt->bind_param("i", $aid);
-        $stmt->execute();
-        return $aid;
+        $stmt->bind_param("i", $aid); //bind_param bindet die Parameter an die SQL-Abfrage um SQL-Injections zu verhindern
+        $stmt->execute(); //execute führt die SQL-Abfrage aus
+        return $aid; //returnt die ID des gelöschten Appointments
     }
 
     private static function createAppointment($title, $beschreibung, $ort, $ablaufdatum) // new appointment anlegen
@@ -106,13 +106,13 @@ class DataHandler
             return;
         }
 
-        $sql = "INSERT INTO `appointments` (`Title`, `Beschreibung`, `Ort`, `Ablaufdatum`) VALUES (?, ?, ?, ?)";
-        $stmt = $db_obj->prepare($sql);
+        $sql = "INSERT INTO `appointments` (`Title`, `Beschreibung`, `Ort`, `Ablaufdatum`) VALUES (?, ?, ?, ?)"; 
+        $stmt = $db_obj->prepare($sql); //prepare bereitet die SQL-Abfrage vor
         $stmt->bind_param("ssss", $title, $beschreibung, $ort, $ablaufdatum);
         $stmt->execute();
         // last inserted id
         $sql = 'SELECT LAST_INSERT_ID() id';
-        $aid = $db_obj->query($sql)->fetch_array()["id"];
+        $aid = $db_obj->query($sql)->fetch_array()["id"]; //fetch_array gibt ein Array zurück, das die Spalten der Abfrage enthält
         return $aid;
     }
 
@@ -188,7 +188,7 @@ class DataHandler
 
         $appointmentArray = [];
         while ($line = $result->fetch_assoc()) {
-            array_push($appointmentArray, new Appointment($line["AID"], $line["Title"], $line["Beschreibung"], $line["Ort"], $line["Ablaufdatum"]));
+            array_push($appointmentArray, new Appointment($line["AID"], $line["Title"], $line["Beschreibung"], $line["Ort"], $line["Ablaufdatum"])); //push fügt ein Element am Ende des Arrays hinzu
         }
 
         return $appointmentArray;
@@ -208,10 +208,10 @@ class DataHandler
         $stmt = $db_obj->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
-        $result = $stmt->get_result();
+        $result = $stmt->get_result(); //get_result gibt das Ergebnis der SQL-Abfrage zurück
 
         $terminArray = [];
-        while ($line = $result->fetch_assoc()) {
+        while ($line = $result->fetch_assoc()) { //fetch_assoc gibt das Ergebnis der SQL-Abfrage als assoziatives Array zurück was in $line gespeichert wird um es dann in ein Termin-Objekt zu speichern
             array_push($terminArray, new Termin($line["TID"], $line["AID"], $line["Datum"], $line["UhrzeitVon"], $line["UhrzeitBis"]));
         }
 
@@ -264,6 +264,6 @@ class DataHandler
             array_push($commentArray, new Kommentar($line["KID"], $line["AID"], $line["Name"], $line["Datum"], $line["Kommentar"]));
         }
 
-        return count($commentArray) ? $commentArray : 1;
+        return count($commentArray) ? $commentArray : 1; //returnt das Kommentar-Array oder 1 falls kein Kommentar vorhanden ist
     }
 }

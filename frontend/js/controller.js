@@ -328,7 +328,7 @@ $("body").on("click", "#detailedView #speichern", function () {
     $.ajax({
         type: "POST",
         url: ".././backend/serviceHandler.php",
-        data: {method:"queryAllVotingsByAppointmentId", param:$('#detailedView').data('aid')},
+        data: {method:"queryAllVotingsByAppointmentId", param:$('#detailedView').data('aid')}, 
         dataType: "json",
         success: function (response) {
             let usernameExists = false;
