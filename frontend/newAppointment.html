@@ -1,6 +1,6 @@
 <section class="container" id="newAppointment">
     <button class="btn btn-light" id="back"><i class="bi bi-arrow-left-short"></i></button>
-    <h2>Neues Appointment erstellen</h2>
+    <h1>Neues Appointment erstellen</h1>
     <form class="appointmentForm">
         
          <div class="mb-3 row">
@@ -29,19 +29,29 @@
         </div>
 
         <div id="terminArea">
-            <h3>Termine</h3>
-            <div class="termin row">
-                <label class="col-auto">Datum:</label>
-                <input class="col-auto" type="date" name="datum">
-                <label class="col-auto">Uhrzeit:</label>
-                <input class="col-auto" type="time" name="von">
+            <div class="row d-flex justify-content-between">
+                <h3 class="col-auto">Termine</h3>
+                <button id="addTermin" class="btn btn-outline-primary col-auto"><i class="bi bi-plus"></i></button>
+            </div> 
+            <div class="termin row d-flex align-items-center">
+                <label class="col-auto col-form-label">Datum:</label>
+                <div class="col-auto">
+                    <input class="form-control" type="date" name="datum">
+                </div>
+                <label class="col-auto col-form-label">Uhrzeit:</label>
+                <div class="col-auto">
+                    <input class="form-control" type="time" name="von">
+                </div>
                 <p class="col-auto">-</p>
-                <input class="col-auto" type="time" name="bis">
+                <div class="col-auto">
+                    <input class="form-control" type="time" name="bis">
+                </div>
             </div>
         </div>
-        <button id="addTermin"><i class="bi bi-plus"></i></button>
 
-        <button class="btn btn-primary" id="speichern">Speichern</button>
+        <div class="row">
+            <button class="btn btn-primary col-auto" id="speichern">Speichern</button>
+        </div>
     </form>
     <div id="error">
         <i class="bi bi-emoji-angry-fill"></i>

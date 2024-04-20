@@ -45,7 +45,7 @@ function loadAppointment(aid) {
         success: function (response) {
             // infos anzeigen
             $("#title").text(response.title);
-            $("#ort").text(response.ort);
+            $("#ort").html('<i class="bi bi-geo-alt-fill"></i>' + response.ort);
             $("#ablaufdatum").text(new Date(response.ablaufdatum).toLocaleDateString());
             $("#desc").text(response.desc);
             // lade termine zu aid
@@ -123,7 +123,7 @@ function loadTermine (aid, ablaufdatum) {
             if (now.getTime() < new Date(ablaufdatum).getTime()) {
                 // erstelle input feld für name
                 tr = $('<tr id="selection"></tr>');
-                let input = $('<td><label>Name:</label><input type="text" id="username"></td>');
+                let input = $('<td><div class="row my-0 mx-0"><input class="form-control col-auto" type="text" id="username" placeholder="Name"></div></td>');
                 tr.append(input);
 
                 // erstelle für jeden Termin eine Checkbox mit value = tId
@@ -477,14 +477,15 @@ function saveNewAppointment() {
 function saveTermine(aid) {    
     // hol alle termine
     let termine = $('#terminArea .termin');
+    
     let terminArray = [];
 
     // alle termine durchlaufen
     $.each(termine, function (index, termin) {
         // für jeden termin datum, uhrzeit Von und Uhrzeit Bis holen
-        let date = $(termin).children('input[name="datum"]').val();
-        let uhrzeitVon = $(termin).children('input[name="von"]').val();
-        let uhrzeitBis = $(termin).children('input[name="bis"]').val();
+        let date = $(termin).children('div').children('input[name="datum"]').val();
+        let uhrzeitVon = $(termin).children('div').children('input[name="von"]').val();
+        let uhrzeitBis = $(termin).children('div').children('input[name="bis"]').val();
 
         if (date == "" || uhrzeitVon == "" || uhrzeitBis == "") {
             showError("Bitte füllen Sie alle Felder aus!");
@@ -496,6 +497,8 @@ function saveTermine(aid) {
         // alle jsons in array zusammenfügen
         terminArray.push(terminJSON);
     });
+
+    console.log(terminArray);
     if (terminArray.length == 0) return;
     
     // termine speichern
@@ -526,14 +529,14 @@ $('body').on('click', '#newAppointment #addTermin', function(event) {
     // click auf + für einen neuen Termin
     event.preventDefault();
     // erstelle ein neues Termin Div
-    let termin = $('<div class="termin row"></div>');
-    let datum = $('<label class="col-auto">Datum:</label>');
-    let date = $('<input class="col-auto" type="date" name="datum">');
-    let uhrzeit = $('<label class="col-auto">Uhrzeit:</label>')
-    let von = $('<input class="col-auto" type="time" name="von">');
+    let termin = $('<div class="termin row d-flex align-items-center"></div>');
+    let datum = $('<label class="col-auto col-form-label">Datum:</label>');
+    let date = $('<div class="col-auto"><input class="form-control" type="date" name="datum"></div>');
+    let uhrzeit = $('<label class="col-auto col-form-label">Uhrzeit:</label>')
+    let von = $('<div class="col-auto"><input class="form-control" type="time" name="von"></div>');
     let seperator = $('<p class="col-auto">-</p>');
-    let bis = $('<input class="col-auto" type="time" name="bis">');
-    let deleteBtn = $('<button class="delete col-auto"><i class="bi bi-x"></i></button>');
+    let bis = $('<div class="col-auto"><input class="form-control" type="time" name="bis"></div>');
+    let deleteBtn = $('<button class="delete btn btn-outline-danger col-auto"><i class="bi bi-trash3-fill"></i></button>');
 
     termin.append(datum, date, uhrzeit, von, seperator, bis, deleteBtn);
     $('#terminArea').append(termin);

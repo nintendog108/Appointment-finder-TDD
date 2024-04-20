@@ -37,8 +37,11 @@ html, body {
 }
 
 .termin .seperator {
-    line-height: 0.1rem;
-    margin-bottom: 4px;
+    line-height: 0.5rem;
+}
+
+#addTermin {
+    margin-right: calc(var(--bs-gutter-x) * .5);
 }
 
 #comment {
@@ -78,8 +81,29 @@ html, body {
     border-collapse: separate;
 }
 
-#appointmentsView h1 {
-    margin: 20px;
+h1 {
+    margin: 30px 0px !important;
+}
+
+#ort i {
+    margin-right: 10px;
+}
+
+.btn-primary:hover,
+.btn-outline-primary:hover {
+    box-shadow: 0px 0px 10px 0px #0d6efd;
+}
+
+.btn-secondary:hover {
+    box-shadow: 0px 0px 10px 0px #5c636a;
+}
+
+.btn-danger:hover {
+    box-shadow: 0px 0px 10px 0px #bb2d3b;
+}
+
+.btn-light:hover {
+    box-shadow: 0px 0px 10px 0px #d3d4d5;
 }
 
 .row {
@@ -89,7 +113,7 @@ html, body {
 	flex-wrap: wrap;
     align-items: flex-end; 
 	margin-top: calc(-1 * var(--bs-gutter-y)); 
-    margin-bottom: 20px; /* added this to have some space between the appointments po*/
+    margin-bottom: 20px;
     width: 100%; 
 } 
 
@@ -112,10 +136,10 @@ html, body {
     border-top: solid 1px black;
 }
 
-/* #detailedView p {
+#detailedView p {
     margin-bottom: 0px;
-    width: 65%;
-} */
+}
+
 #detailedView {
     width: 70%;
     margin: 0 auto; 
@@ -128,6 +152,9 @@ html, body {
     }
 }
 
+.appointmentForm #speichern {
+    margin-left: calc(var(--bs-gutter-x) * .5);
+}
 
 #error,
 #success {
@@ -208,50 +235,16 @@ html, body {
 #delete:hover {
     background-color: rgb(211, 4, 4);
 }
-
+/* 
 #terminArea .termin {
     display: flex;
     flex-direction: row;
     align-items: center;
-}
+} */
+
 
 #terminArea .termin p {
     margin-bottom: 0px;
-}
-
-#terminArea .termin .delete {
-    background-color: transparent;
-    border: 1px solid rgb(126, 1, 1);
-    transition: all 0.2s ease;
-    margin-left: 10px;
-    border-radius: 10px;
-}
-
-#terminArea .termin .delete i {
-    color: rgb(126, 1, 1);
-    font-size: 1rem;
-    -webkit-text-stroke: 1px;
-}
-
-#terminArea .termin .delete:hover {
-    background-color: rgba(255, 0, 0, 0.541);
-}
-
-#addTermin {  /* added this for the button */
-	display: block;
-	width: 45px;
-	height: 45px;
-	background-color: rgb(129, 42, 228);
-	border: none;
-	border-radius: 30%;
-	color: white;
-	font-size: 24px;
-	cursor: pointer;
-	margin: auto;
-    margin-bottom: 5px;
-}
-#addTermin:hover {
-    background-color: rgb(228, 28, 235); /* showing love for Kathrin */
 }
 
 #back {
@@ -291,9 +284,9 @@ td i {
     -webkit-text-stroke: 3px;
 }
 
-/* .card-body {
+.card-text {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
     display: -webkit-box;
     overflow: hidden;
-} */
+}
