@@ -106,6 +106,12 @@ h1 {
     box-shadow: 0px 0px 10px 0px #d3d4d5;
 }
 
+#addTermin.btn.btn-outline-primary:hover {
+    color: rgb(234, 255, 0);
+    border-color: rgb(255, 4, 176);
+    background-color: rgb(253, 0, 253);
+}
+
 .row {
 	--bs-gutter-x: 1.5rem;
 	--bs-gutter-y: 0;
@@ -227,7 +233,7 @@ h1 {
     height: 55px;
     transition: all 0.2s ease;
     cursor: pointer;
-    position: absolute; /* chenged from fixed to absolute, bc in a small screen it was on the way*/
+    position: absolute; /* chenged from fixed to absolute, bc on a small screen it was on the way*/
     right: 20px;
     top: 20px;
 }
@@ -235,13 +241,6 @@ h1 {
 #delete:hover {
     background-color: rgb(211, 4, 4);
 }
-/* 
-#terminArea .termin {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-} */
-
 
 #terminArea .termin p {
     margin-bottom: 0px;
