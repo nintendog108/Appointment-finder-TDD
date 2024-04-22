@@ -133,7 +133,9 @@ function loadTermine (aid, ablaufdatum) {
                 dataType: "json",
                 success: function (votings) {
                     // keine Votings in der Datenbank
-                    if (votings == 1) return;
+                    if (votings == 1) {
+                        printSelection(response, ablaufdatum);
+                    };
                     // bearbeite response und zeig Votings an
                     modifyAndPrintVotings(aid, ablaufdatum, response, votings);
                 }
