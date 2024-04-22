@@ -94,8 +94,10 @@ function loadTermine (aid, ablaufdatum) {
             // erstelle eine Tabelle
             let table = $('<table class="table table-bordered"></table>');
             let tbody = $('<tbody></tbody>');
+            let selection = $('<tr id="selection"></tr>');
+            tbody.append(selection);
             table.append(tbody);
-            let tr = $('<tr><td></td></tr>');
+            let tr = $('<tr></tr>');
             tbody.append(tr);
 
             // durchlauf alle Termine
@@ -118,29 +120,9 @@ function loadTermine (aid, ablaufdatum) {
                 tr.append(terminDiv);
             });
 
-            // nur wenn Appointment nicht abgelaufen
-            let now = new Date();
-            if (now.getTime() < new Date(ablaufdatum).getTime()) {
-                // erstelle input feld für name
-                tr = $('<tr id="selection"></tr>');
-                let input = $('<td><div class="row my-0 mx-0"><input class="form-control col-auto" type="text" id="username" placeholder="Name"></div></td>');
-                tr.append(input);
+            td = $('<td></td>');
+            tr.prepend(td);
 
-                // erstelle für jeden Termin eine Checkbox mit value = tId
-                $.each(response, function (index, termin) {
-                    let checkbox = $('<td><input type="checkbox" value="' + termin.tId + '"></td>');
-
-                    tr.append(checkbox);
-                });
-
-                // erstelle Textarea für kommentare und Senden Button
-                let textarea = $('<textarea class="form-control mb-3" id="comment" placeholder="Kommentar hinzuf&uuml;gen"></textarea>');
-                let button = $('<button class="btn btn-primary" id="speichern">Speichern</button>');
-                $(textarea).insertBefore("#commentArea");
-                $(button).insertBefore("#commentArea");
-            }
-            
-            tbody.append(tr);
             $('#voting').append(table);
 
             // lade alle bisherigen Votings
@@ -149,18 +131,48 @@ function loadTermine (aid, ablaufdatum) {
                 url: ".././backend/serviceHandler.php",
                 data: {method:"queryAllVotingsByAppointmentId", param: aid},
                 dataType: "json",
-                success: function (response) {
+                success: function (votings) {
                     // keine Votings in der Datenbank
-                    if (response == 1) return;
+                    if (votings == 1) return;
                     // bearbeite response und zeig Votings an
-                    modifyAndPrintVotings(aid, response);    
+                    modifyAndPrintVotings(aid, ablaufdatum, response, votings);
                 }
             });
         }
     });
 }
+
+function printSelection(response, ablaufdatum) {
+    // nur wenn Appointment nicht abgelaufen
+
+    console.log(response);
+    let now = new Date();
+    if (now.getTime() > new Date(ablaufdatum).getTime()) return;
+
+    // erstelle input feld für name
+    let tr = $('#selection');
+    let input = $('<td><div class="row my-0 mx-0"><input class="form-control col-auto" type="text" id="username" placeholder="Name"></div></td>');
+    tr.append(input);
+
+    // erstelle für jeden Termin eine Checkbox mit value = tId
+    $.each(response, function (index, termin) {
+        let checkbox = $('<td><input type="checkbox" value="' + termin.tId + '"></td>');
+
+        tr.append(checkbox);
+    });
+
+    // erstelle Textarea für kommentare und Senden Button
+    let textarea = $('<textarea class="form-control mb-3" id="comment" placeholder="Kommentar hinzuf&uuml;gen"></textarea>');
+    let button = $('<button class="btn btn-primary" id="speichern">Speichern</button>');
+    $(textarea).insertBefore("#commentArea");
+    $(button).insertBefore("#commentArea");
+
+    console.log($('tbody'));
+    $('tbody').append(tr);
+}
+
 // bearbeitet die Struktur des response damit wir die Votings leichter anzeigen können
-function modifyAndPrintVotings(aid, response) {
+function modifyAndPrintVotings(aid, ablaufdatum, response, votings) {
     /**
      * ALTE STRUKTUR
      * 
@@ -192,7 +204,7 @@ function modifyAndPrintVotings(aid, response) {
             // markiert letztes Voting der person
             let letzterTermin = 0;
             // durchlauf alle votings, ein voting = {tId: 1, name: "Florian"}
-            $.each(response, function (index, voting) {
+            $.each(votings, function (index, voting) {
                 if (person == null) {
                     // initialisiere person am anfang, mit dem namen
                     person = {"name": voting.name, "votings": []};
@@ -232,12 +244,12 @@ function modifyAndPrintVotings(aid, response) {
             // letzte person ins array hinzufügen
             newresponse.push(person);
             // zeige alle votings mit neuer struktur an
-            printVotings(newresponse);
+            printVotings(response, ablaufdatum, newresponse);
         }
     });
 }
 
-function printVotings(votings) {
+function printVotings(response, ablaufdatum, votings) {
     // durchlauf alle person mit deren Votings
     $.each(votings, function (index, person) {
         // erstelle für jede person eine zeile in der tabelle
@@ -250,8 +262,10 @@ function printVotings(votings) {
             tr.append(checkbox);
         });
 
-        $(tr).insertBefore('#selection');
+        $('tbody').append(tr);
     });
+
+    printSelection(response, ablaufdatum);
 }
 
 $('body').on('click', '#back', function() {
