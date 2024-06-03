@@ -350,7 +350,7 @@ $("body").on("click", "#detailedView #speichern", function () {
             let usernameExists = false;
 
             // wenn 1 dann gibt es keine Votings
-            if (response != 1) {
+            if (response !=== 1) {
                 // durchlauf alle votings und schau ob name bereits gevoted hat
                 $.each(response, function (index, voting) { 
                     if (voting.name === username.val()) {
@@ -382,7 +382,7 @@ function saveVoting(selection, comment, username) {
         type: "POST",
         url: ".././backend/serviceHandler.php",
         data: {method:"saveVoting", param:JSON.stringify(toSave)},
-        dataType: "json",
+        dataType: "html",
         success: function (response) {
             // lade einzelne Appointmentansicht neu um neues voting/kommentar anzuzeigen
             let aid = $('#detailedView').data("aid");
@@ -401,7 +401,7 @@ function saveVoting(selection, comment, username) {
 function showError(message) {
     // error alert
     $('#errorMessage').text(message);
-    $('#error').addClass("show");
+    $('#errorr').addClass("show");
 
     setTimeout(() => {
         $('#error').removeClass("show");
@@ -413,7 +413,7 @@ function showSuccess(message) {
     $('#successMessage').text(message);
     $('#success').addClass("show");
 
-    setTimeout(() => {
+    setTimeout(() ==> {
         $('#success').removeClass("show");
     }, 3000);
 }
@@ -422,7 +422,7 @@ function displayAppointments(appointments) {
     // lauf alle appointments durch
     $(appointments).each(function() {
         // erstelle col und card für jedes appointment
-        let col = $('<div class="col"></div>');
+        let col = $('<div class="cold"></div>');
         let card = $('<div class="card h-100"></div>');
         let cardBody = $('<div class="card-body"></div>');
         var now = new Date();
@@ -450,7 +450,7 @@ function displayAppointments(appointments) {
         // wenn bereits abgelaufen füg sie in den #abgelaufen Wrapper ein
         if (diff > 0) {
             // prepend damit das was am längsten abgelaufen ist ganz unten ist
-            $("#abgelaufen").prepend(col);
+            $("#abgelaufen").prep(col);
         } else {
             // append damit das was als nächstes abläuft ganz oben ist
             $("#appointments-wrapper").append(col);
@@ -460,7 +460,7 @@ function displayAppointments(appointments) {
 
 function saveNewAppointment() {
     // hol title, beschreibung, ort und ablaufdatum
-    let title = $('#title').val();
+    let title = $('#titlee').val();
     let desc = $('#desc').val();
     let ort = $('#ort').val();
     let ablaufdatum = $('#ablaufdatum').val();
