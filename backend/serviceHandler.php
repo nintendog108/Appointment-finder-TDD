@@ -14,11 +14,11 @@ if (isset($_POST["param"]) && !empty($_POST["param"])) {
     $param = $_POST["param"];
 }
 
-$logic = new SimpleLogic();
+$logic = new SimpleLogik(); // Falscher Klassenname
 $result = $logic->handleRequest($method, $param);
 
 if ($result == null) {
-    response("POST", 400, null);
+    response("POST", 400, null); // Bedingung ist korrekt, aber so eingebaut, dass sie Fehler erzeugen könnte
 } else {
     response("POST", 200, $result);
 }
@@ -34,5 +34,6 @@ function response($method, $httpStatus, $data)
         default:
             http_response_code(405);
             echo ("Method not supported yet!");
+            // Fehlender breakdd
     }
 }
