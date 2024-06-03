@@ -1,7 +1,7 @@
 <?php
 include ("businesslogic/simpleLogic.php");
 
-$param = "";
+$param = ""; // default value
 $method = "";
 
 if (isset($_POST["method"]) && !empty($_POST["method"])) {
