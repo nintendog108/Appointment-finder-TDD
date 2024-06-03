@@ -1,7 +1,7 @@
 <?php
 include ("businesslogic/simpleLogic.php");
 
-$param = ""; // default valuefdfsdfsdfds
+$param = "";
 $method = "";
 
 if (isset($_POST["method"]) && !empty($_POST["method"])) {
@@ -14,11 +14,11 @@ if (isset($_POST["param"]) && !empty($_POST["param"])) {
     $param = $_POST["param"];
 }
 
-$logic = new SimpleLogik(); // Falscher Klassenname
+$logic = new SimpleLogic();
 $result = $logic->handleRequest($method, $param);
 
 if ($result == null) {
-    response("POST", 400, null); // Bedingung ist korrekt, aber so eingebaut, dass sie Fehler erzeugen könnte
+    response("POST", 400, null);
 } else {
     response("POST", 200, $result);
 }
@@ -34,6 +34,5 @@ function response($method, $httpStatus, $data)
         default:
             http_response_code(405);
             echo ("Method not supported yet!");
-            // Fehlender breakdd
     }
 }

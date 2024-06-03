@@ -8,8 +8,8 @@ $(document).ready(function () {
 function loadAppointments() {
     // ladet alle Appointments
     $.ajax({
-        type: "POST", // Fehler 2: Sollte "GET" sein
-        url: "./backend/serviceHandler.php", // Fehler 1: Falscher Pfad
+        type: "POST",
+        url: ".././backend/serviceHandler.php",
         data: {method: "queryAppointments"},
         dataType: "json",
         success: function (response) {
@@ -39,9 +39,9 @@ function loadAppointment(aid) {
     // lade alle appointments zu aid
     $.ajax({
         type: "POST",
-        url: "../backend/serviceHandler.php",
+        url: ".././backend/serviceHandler.php",
         data: {method: "queryAppointmentById", param: aid},
-        dataType: "html", // Fehler 3: Sollte "json" sein
+        dataType: "json",
         success: function (response) {
             // infos anzeigen
             $("#title").text(response.title);
@@ -50,14 +50,18 @@ function loadAppointment(aid) {
             $("#desc").text(response.desc);
             // lade termine zu aid
             loadTermine(aid, response.ablaufdatum);
+        },
+        error: function(error) {
+            console.error(error);
+
+            showError("Ein Fehler ist aufgetreten!");
         }
-        // Fehler 4: Fehlender error-Handler
     });
 
     // lade all Kommentare zu aid
     $.ajax({
         type: "POST",
-        url: "../backend/serviceHandler.php",
+        url: ".././backend/serviceHandler.php",
         data: {method: "queryCommentsByAppointment", param: aid},
         dataType: "json",
         success: function (response) {
@@ -83,7 +87,7 @@ function loadTermine (aid, ablaufdatum) {
     // lade all Termine
     $.ajax({
         type: "POST",
-        url: "../backend/serviceHandler.php",
+        url: ".././backend/serviceHandler.php",
         data: {method: "queryTermineByAppointmentId", param: aid},
         dataType: "json",
         success: function (response) {
@@ -116,7 +120,7 @@ function loadTermine (aid, ablaufdatum) {
                 tr.append(terminDiv);
             });
 
-            td = $('<td></td>'); // Fehler 6: Variable nicht korrekt initialisiert
+            td = $('<td></td>');
             tr.prepend(td);
 
             $('#voting').append(table);
@@ -124,7 +128,7 @@ function loadTermine (aid, ablaufdatum) {
             // lade alle bisherigen Votings
             $.ajax({
                 type: "POST",
-                url: "../backend/serviceHandler.php",
+                url: ".././backend/serviceHandler.php",
                 data: {method:"queryAllVotingsByAppointmentId", param: aid},
                 dataType: "json",
                 success: function (votings) {
@@ -194,7 +198,7 @@ function modifyAndPrintVotings(aid, ablaufdatum, response, votings) {
     // lade alle Termine
     $.ajax({
         type: "POST",
-        url: "../backend/serviceHandler.php",
+        url: ".././backend/serviceHandler.php",
         data: {method: "queryTermineByAppointmentId", param: aid},
         dataType: "json",
         success: function (termine) {
@@ -290,7 +294,7 @@ $('body').on('click', '#detailedView #delete', function() {
     // lösche appointment zu aid
     $.ajax({
         type: "POST",
-        url: "../backend/serviceHandler.php",
+        url: ".././backend/serviceHandler.php",
         data: {method: "deleteAppointment", param: $('#detailedView').data("aid")},
         dataType: "json",
         success: function (response) {
@@ -339,14 +343,14 @@ $("body").on("click", "#detailedView #speichern", function () {
     // lade alle bisherigen Votings
     $.ajax({
         type: "POST",
-        url: "../backend/serviceHandler.php",
+        url: ".././backend/serviceHandler.php",
         data: {method:"queryAllVotingsByAppointmentId", param:$('#detailedView').data('aid')}, 
         dataType: "json",
         success: function (response) {
             let usernameExists = false;
 
             // wenn 1 dann gibt es keine Votings
-            if (response != 1) { // Fehler 8: Sollte "===" sein
+            if (response != 1) {
                 // durchlauf alle votings und schau ob name bereits gevoted hat
                 $.each(response, function (index, voting) { 
                     if (voting.name === username.val()) {
@@ -376,7 +380,7 @@ function saveVoting(selection, comment, username) {
     // speicher voting
     $.ajax({
         type: "POST",
-        url: "../backend/serviceHandler.php",
+        url: ".././backend/serviceHandler.php",
         data: {method:"saveVoting", param:JSON.stringify(toSave)},
         dataType: "json",
         success: function (response) {
@@ -418,7 +422,7 @@ function displayAppointments(appointments) {
     // lauf alle appointments durch
     $(appointments).each(function() {
         // erstelle col und card für jedes appointment
-        let col = $('<div class="column"></div>'); // Fehler 6: Falsche Initialisierung
+        let col = $('<div class="col"></div>');
         let card = $('<div class="card h-100"></div>');
         let cardBody = $('<div class="card-body"></div>');
         var now = new Date();
@@ -477,7 +481,7 @@ function saveNewAppointment() {
     // appointment speichern
     $.ajax({
         type: "POST",
-        url: "../backend/serviceHandler.php",
+        url: ".././backend/serviceHandler.php",
         data: {method: "saveAppointment", param: JSON.stringify(toSave)},
         dataType: "json",
         success: function (aid) {
@@ -510,13 +514,13 @@ function saveTermine(aid) {
         terminArray.push(terminJSON);
     });
 
-    // console.log(terminArray); // Fehler 7: Fehlender console.log
+    console.log(terminArray);
     if (terminArray.length == 0) return;
     
     // termine speichern
     $.ajax({
         type: "POST",
-        url: "../backend/serviceHandler.php",
+        url: ".././backend/serviceHandler.php",
         data: {method: "saveTermine", param:JSON.stringify(terminArray)},
         dataType: "json",
         success: function (response) {
