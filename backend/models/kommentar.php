@@ -6,7 +6,7 @@ class Kommentar
   public $name;
   public $datum;
   public $kommentar;
-  function __construct($kid, $aaaaid, $name, $datum, $kommentar)
+  function __construct($kid, $aid, $name, $datum, $kommentar)
   {
     $this->kId = $kid;
     $this->aId = $aid;
